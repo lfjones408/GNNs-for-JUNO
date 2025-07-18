@@ -1,0 +1,31 @@
+=== Job started at Wed  2 Jul 22:32:49 CST 2025
+/junofs/users/ljones/.lem_juno/lib64/python3.9/site-packages/networkx/utils/backends.py:135: RuntimeWarning: networkx backend defined more than once: nx-loopback
+  backends.update(_get_backends("networkx.backends"))
+2025-07-02 22:33:10,910 - INFO - [Device] cpu
+2025-07-02 22:33:15,382 - INFO - [Data] train batch: 4 | validation batch: 1
+2025-07-02 22:33:15,382 - INFO - [Data] train evt size: 16 | validation evt size: 4
+/junofs/users/ljones/.lem_juno/lib64/python3.9/site-packages/torch/nn/modules/loss.py:610: UserWarning: Using a target size (torch.Size([70448, 2])) that is different to the input size (torch.Size([4, 2])). This will likely lead to incorrect results due to broadcasting. Please ensure they have the same size.
+  return F.mse_loss(input, target, reduction=self.reduction)
+Traceback (most recent call last):
+  File "/junofs/users/ljones/new_lem/utils/train_val.py", line 142, in <module>
+    main()
+  File "/junofs/users/ljones/new_lem/utils/train_val.py", line 120, in main
+    train_loss = train_epoch(model, train_loader, loss_fn, optimizer, device)
+  File "/junofs/users/ljones/new_lem/utils/train_val.py", line 47, in train_epoch
+    loss = loss_fn(x_recon, batch)
+  File "/junofs/users/ljones/new_lem/utils/loss.py", line 28, in __call__
+    return self.node_level_loss(model_output, batch)
+  File "/junofs/users/ljones/new_lem/utils/loss.py", line 50, in node_level_loss
+    return self.mse(x_recon, batch.x)
+  File "/junofs/users/ljones/.lem_juno/lib64/python3.9/site-packages/torch/nn/modules/module.py", line 1751, in _wrapped_call_impl
+    return self._call_impl(*args, **kwargs)
+  File "/junofs/users/ljones/.lem_juno/lib64/python3.9/site-packages/torch/nn/modules/module.py", line 1762, in _call_impl
+    return forward_call(*args, **kwargs)
+  File "/junofs/users/ljones/.lem_juno/lib64/python3.9/site-packages/torch/nn/modules/loss.py", line 610, in forward
+    return F.mse_loss(input, target, reduction=self.reduction)
+  File "/junofs/users/ljones/.lem_juno/lib64/python3.9/site-packages/torch/nn/functional.py", line 3884, in mse_loss
+    expanded_input, expanded_target = torch.broadcast_tensors(input, target)
+  File "/junofs/users/ljones/.lem_juno/lib64/python3.9/site-packages/torch/functional.py", line 77, in broadcast_tensors
+    return _VF.broadcast_tensors(tensors)  # type: ignore[attr-defined]
+RuntimeError: The size of tensor a (4) must match the size of tensor b (70448) at non-singleton dimension 0
+=== Job ended at Wed  2 Jul 22:33:23 CST 2025

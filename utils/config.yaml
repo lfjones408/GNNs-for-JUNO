@@ -1,0 +1,15 @@
+input: /junofs/users/ljones/py_reader/FC/nu_e/pmt_data_1.h5
+output: output
+graph: utils/pmt_graph.pt
+stats: utils/norm_stats.npz
+
+training:
+  epochs: 100
+  batch_size: 32
+  lr: 0.001
+  latent_dim: 16
+  hidden_dim: 32
+  patience: 10
+  limit: 100
+  loss: regression
+  target: energy

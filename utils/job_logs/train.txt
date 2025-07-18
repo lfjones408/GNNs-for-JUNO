@@ -1,0 +1,14 @@
+=== Job started at Wed  2 Jul 18:42:18 CST 2025
+/junofs/users/ljones/.lem_juno/lib64/python3.9/site-packages/networkx/utils/backends.py:135: RuntimeWarning: networkx backend defined more than once: nx-loopback
+  backends.update(_get_backends("networkx.backends"))
+2025-07-02 19:26:13,951 - INFO - [Epoch 1] Train: 0.1325 | Val: 0.0541 | Time: 2546.1s
+2025-07-02 20:10:31,086 - INFO - [Epoch 2] Train: 0.0720 | Val: 0.0617 | Time: 2657.0s
+2025-07-02 20:53:19,226 - INFO - [Epoch 3] Train: 0.0651 | Val: 0.0398 | Time: 2568.1s
+2025-07-02 21:22:31,964 - INFO - [Epoch 4] Train: 0.0550 | Val: 0.0930 | Time: 1752.7s
+2025-07-02 21:53:48,588 - INFO - [Epoch 5] Train: 0.0536 | Val: 0.0627 | Time: 1876.6s
+2025-07-02 22:27:26,695 - INFO - [Epoch 6] Train: 0.0500 | Val: 0.0349 | Time: 2018.1s
+2025-07-02 23:05:13,170 - INFO - [Epoch 7] Train: 0.0446 | Val: 0.0353 | Time: 2266.4s
+2025-07-02 23:41:52,063 - INFO - [Epoch 8] Train: 0.0495 | Val: 0.0450 | Time: 2198.9s
+2025-07-03 00:21:10,527 - INFO - [Epoch 9] Train: 0.0488 | Val: 0.0455 | Time: 2358.5s
+2025-07-03 01:04:07,389 - INFO - [Epoch 10] Train: 0.0456 | Val: 0.0322 | Time: 2576.8s
+=== Job ended at Thu  3 Jul 01:04:19 CST 2025

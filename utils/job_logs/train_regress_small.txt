@@ -1,0 +1,66 @@
+=== Job started at Mon 14 Jul 20:57:51 CST 2025
+/junofs/users/ljones/.lem_juno/lib64/python3.9/site-packages/networkx/utils/backends.py:135: RuntimeWarning: networkx backend defined more than once: nx-loopback
+  backends.update(_get_backends("networkx.backends"))
+2025-07-14 20:58:52,922 - INFO - [Device] cpu
+2025-07-14 20:58:56,114 - INFO - [Data] train batch: 25 | validation batch: 7
+2025-07-14 20:58:56,115 - INFO - [Data] train evt size: 800 | validation evt size: 200
+2025-07-14 21:20:47,311 - INFO - [Epoch 1] Train: 119.6958 | Val: 127.0167 | Time: 1311.1s
+2025-07-14 21:44:18,108 - INFO - [Epoch 2] Train: 68.3280 | Val: 31.5803 | Time: 1410.7s
+2025-07-14 22:08:03,953 - INFO - [Epoch 3] Train: 29.2769 | Val: 21.5343 | Time: 1425.8s
+2025-07-14 22:25:20,206 - INFO - [Epoch 4] Train: 17.5141 | Val: 10.8226 | Time: 1036.2s
+2025-07-14 22:42:05,809 - INFO - [Epoch 5] Train: 13.6929 | Val: 8.3158 | Time: 1005.6s
+2025-07-14 22:58:00,258 - INFO - [Epoch 6] Train: 13.5850 | Val: 7.2316 | Time: 954.4s
+2025-07-14 23:13:58,506 - INFO - [Epoch 7] Train: 11.7596 | Val: 7.6336 | Time: 958.2s
+2025-07-14 23:29:22,484 - INFO - [Epoch 8] Train: 11.1777 | Val: 8.0242 | Time: 924.0s
+2025-07-14 23:44:40,619 - INFO - [Epoch 9] Train: 11.4920 | Val: 6.2714 | Time: 918.1s
+2025-07-15 00:00:02,022 - INFO - [Epoch 10] Train: 9.7733 | Val: 5.7350 | Time: 921.4s
+2025-07-15 00:15:30,823 - INFO - [Epoch 11] Train: 10.3153 | Val: 10.1156 | Time: 928.8s
+2025-07-15 00:30:51,433 - INFO - [Epoch 12] Train: 9.2726 | Val: 7.7195 | Time: 920.6s
+2025-07-15 00:46:05,404 - INFO - [Epoch 13] Train: 9.4954 | Val: 9.9104 | Time: 914.0s
+2025-07-15 01:01:26,523 - INFO - [Epoch 14] Train: 10.0604 | Val: 8.8987 | Time: 921.1s
+2025-07-15 01:16:51,408 - INFO - [Epoch 15] Train: 9.6388 | Val: 7.1405 | Time: 924.9s
+2025-07-15 01:32:17,492 - INFO - [Epoch 16] Train: 10.2041 | Val: 8.2205 | Time: 926.1s
+2025-07-15 01:47:32,457 - INFO - [Epoch 17] Train: 9.5873 | Val: 6.3648 | Time: 915.0s
+2025-07-15 02:02:45,572 - INFO - [Epoch 18] Train: 8.5724 | Val: 5.7005 | Time: 913.1s
+2025-07-15 02:18:02,399 - INFO - [Epoch 19] Train: 9.3677 | Val: 6.3721 | Time: 916.7s
+2025-07-15 02:33:21,247 - INFO - [Epoch 20] Train: 8.6502 | Val: 5.7623 | Time: 918.8s
+2025-07-15 02:48:51,060 - INFO - [Epoch 21] Train: 8.5176 | Val: 5.7384 | Time: 929.8s
+2025-07-15 03:04:24,106 - INFO - [Epoch 22] Train: 8.1097 | Val: 5.8500 | Time: 933.0s
+2025-07-15 03:20:03,446 - INFO - [Epoch 23] Train: 8.1357 | Val: 5.6595 | Time: 939.3s
+2025-07-15 03:35:23,197 - INFO - [Epoch 24] Train: 8.8150 | Val: 5.7142 | Time: 919.6s
+2025-07-15 03:50:55,268 - INFO - [Epoch 25] Train: 7.5849 | Val: 5.6828 | Time: 932.1s
+2025-07-15 04:06:19,394 - INFO - [Epoch 26] Train: 9.0729 | Val: 5.7157 | Time: 924.1s
+2025-07-15 04:21:41,621 - INFO - [Epoch 27] Train: 8.2134 | Val: 5.5683 | Time: 922.2s
+2025-07-15 04:37:06,557 - INFO - [Epoch 28] Train: 8.2192 | Val: 5.9312 | Time: 924.9s
+2025-07-15 04:52:20,351 - INFO - [Epoch 29] Train: 7.7344 | Val: 5.6946 | Time: 913.8s
+2025-07-15 05:07:36,223 - INFO - [Epoch 30] Train: 7.7261 | Val: 5.5343 | Time: 915.9s
+2025-07-15 05:22:49,496 - INFO - [Epoch 31] Train: 8.5022 | Val: 5.4874 | Time: 913.3s
+2025-07-15 05:38:15,034 - INFO - [Epoch 32] Train: 8.4648 | Val: 5.6902 | Time: 925.5s
+2025-07-15 05:53:33,643 - INFO - [Epoch 33] Train: 8.5563 | Val: 5.5247 | Time: 918.6s
+2025-07-15 06:08:55,456 - INFO - [Epoch 34] Train: 7.1633 | Val: 5.4598 | Time: 921.8s
+2025-07-15 06:24:33,060 - INFO - [Epoch 35] Train: 8.0635 | Val: 5.5030 | Time: 937.6s
+2025-07-15 06:40:25,924 - INFO - [Epoch 36] Train: 8.1810 | Val: 5.5371 | Time: 952.9s
+2025-07-15 06:56:13,682 - INFO - [Epoch 37] Train: 7.6510 | Val: 5.4995 | Time: 947.8s
+2025-07-15 07:12:13,001 - INFO - [Epoch 38] Train: 8.2232 | Val: 5.5845 | Time: 959.3s
+2025-07-15 07:28:24,254 - INFO - [Epoch 39] Train: 7.7907 | Val: 5.4895 | Time: 971.3s
+2025-07-15 07:44:57,694 - INFO - [Epoch 40] Train: 7.7989 | Val: 5.3151 | Time: 993.4s
+2025-07-15 08:01:22,583 - INFO - [Epoch 41] Train: 7.1429 | Val: 5.4977 | Time: 984.9s
+2025-07-15 08:18:02,214 - INFO - [Epoch 42] Train: 7.5342 | Val: 5.5143 | Time: 999.6s
+2025-07-15 08:34:47,664 - INFO - [Epoch 43] Train: 8.1384 | Val: 5.4960 | Time: 1005.4s
+2025-07-15 08:51:32,524 - INFO - [Epoch 44] Train: 7.8767 | Val: 5.4292 | Time: 1004.9s
+2025-07-15 09:08:10,403 - INFO - [Epoch 45] Train: 7.7334 | Val: 5.6443 | Time: 997.9s
+2025-07-15 09:24:50,121 - INFO - [Epoch 46] Train: 7.1162 | Val: 5.5184 | Time: 999.7s
+2025-07-15 09:41:23,275 - INFO - [Epoch 47] Train: 7.6619 | Val: 5.2539 | Time: 993.2s
+2025-07-15 09:58:10,773 - INFO - [Epoch 48] Train: 7.5607 | Val: 5.2236 | Time: 1007.5s
+2025-07-15 10:14:57,013 - INFO - [Epoch 49] Train: 7.0353 | Val: 5.3080 | Time: 1006.2s
+2025-07-15 10:31:41,053 - INFO - [Epoch 50] Train: 7.4434 | Val: 5.2338 | Time: 1004.0s
+2025-07-15 10:48:22,908 - INFO - [Epoch 51] Train: 7.1101 | Val: 5.3916 | Time: 1001.9s
+2025-07-15 11:05:13,107 - INFO - [Epoch 52] Train: 7.3955 | Val: 5.2627 | Time: 1010.2s
+2025-07-15 11:21:58,801 - INFO - [Epoch 53] Train: 7.1324 | Val: 5.3909 | Time: 1005.7s
+2025-07-15 11:38:42,881 - INFO - [Epoch 54] Train: 7.3605 | Val: 5.4080 | Time: 1004.1s
+2025-07-15 11:55:23,531 - INFO - [Epoch 55] Train: 7.6834 | Val: 5.4129 | Time: 1000.6s
+2025-07-15 12:12:10,267 - INFO - [Epoch 56] Train: 7.6296 | Val: 5.2384 | Time: 1006.7s
+2025-07-15 12:28:54,580 - INFO - [Epoch 57] Train: 7.1848 | Val: 5.3658 | Time: 1004.3s
+2025-07-15 12:45:43,087 - INFO - [Epoch 58] Train: 6.8805 | Val: 5.3363 | Time: 1008.5s
+2025-07-15 12:45:43,087 - INFO - Early stopping triggered.
+=== Job ended at Tue 15 Jul 12:45:57 CST 2025

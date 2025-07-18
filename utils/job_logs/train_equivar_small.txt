@@ -1,0 +1,6 @@
+=== Job started at Fri 18 Jul 18:57:49 CST 2025
+/junofs/users/ljones/.lem_juno/lib64/python3.9/site-packages/networkx/utils/backends.py:135: RuntimeWarning: networkx backend defined more than once: nx-loopback
+  backends.update(_get_backends("networkx.backends"))
+2025-07-18 18:58:05,875 - INFO - [Device] cpu
+2025-07-18 18:58:08,966 - INFO - [Data] train batch: 3 | validation batch: 1
+2025-07-18 18:58:08,966 - INFO - [Data] train evt size: 80 | validation evt size: 20

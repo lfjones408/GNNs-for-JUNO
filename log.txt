@@ -1,0 +1,44 @@
+=== Job started at Fri 13 Jun 18:00:15 CST 2025
+/junofs/users/ljones/.lem_juno/lib64/python3.9/site-packages/networkx/utils/backends.py:135: RuntimeWarning: networkx backend defined more than once: nx-loopback
+  backends.update(_get_backends("networkx.backends"))
+2025-06-13 18:01:25,523 - INFO - Using device: cpu
+2025-06-13 18:01:25,524 - INFO - [MEM] After device setup - RSS: 550.09 MB
+2025-06-13 18:01:25,588 - INFO - -> geometry read
+2025-06-13 18:01:25,589 - INFO - [MEM] After geometry read - RSS: 550.51 MB
+2025-06-13 18:01:25,782 - INFO - -> KNN Graph built
+2025-06-13 18:01:25,782 - INFO - [MEM] After graph build - RSS: 564.23 MB
+2025-06-13 18:01:25,782 - INFO - -> model built
+2025-06-13 18:01:25,782 - INFO - [MEM] After model built - RSS: 564.23 MB
+2025-06-13 18:01:25,788 - INFO - -> loading dataset
+2025-06-13 18:01:28,962 - INFO - [TIME] Dataset load: 3.17s
+2025-06-13 18:01:28,962 - INFO - -> preparing data loaders
+2025-06-13 18:01:28,991 - INFO - [TIME] DataLoader init: 0.03s
+2025-06-13 18:01:28,992 - INFO - -> data read
+2025-06-13 18:01:28,992 - INFO - [MEM] After data read - RSS: 1046.45 MB
+2025-06-13 18:01:29,136 - INFO - -> model, optimiser and scheduler defined
+2025-06-13 18:01:29,136 - INFO - [MEM] After model, optimiser and scheduler defined - RSS: 1047.45 MB
+['/junofs/users/ljones/py_reader/FC/nu_e/pmt_data_0.h5', '/junofs/users/ljones/py_reader/FC/nu_e/pmt_data_1.h5', '/junofs/users/ljones/py_reader/FC/nu_e/pmt_data_10.h5', '/junofs/users/ljones/py_reader/FC/nu_e/pmt_data_11.h5', '/junofs/users/ljones/py_reader/FC/nu_e/pmt_data_12.h5']
+Training:   0%|          | 0/10 [00:00<?, ?it/s]2025-06-13 18:03:21,308 - INFO - Epoch 1: Train=0.3155, Val=0.4120, LR=1.00e-03, Time=112.2s
+2025-06-13 18:03:21,309 - INFO - [MEM] After Epoch 1 - RSS: 1402.11 MB
+Training:  10%|█         | 1/10 [01:52<16:51, 112.39s/it]2025-06-13 18:05:14,226 - INFO - Epoch 2: Train=0.1803, Val=0.1057, LR=1.00e-03, Time=112.7s
+2025-06-13 18:05:14,228 - INFO - [MEM] After Epoch 2 - RSS: 1411.30 MB
+Training:  20%|██        | 2/10 [03:45<15:00, 112.58s/it]2025-06-13 18:07:07,486 - INFO - Epoch 3: Train=0.1505, Val=0.1047, LR=1.00e-03, Time=113.3s
+2025-06-13 18:07:07,488 - INFO - [MEM] After Epoch 3 - RSS: 1433.01 MB
+Training:  30%|███       | 3/10 [05:38<13:10, 112.89s/it]2025-06-13 18:08:54,888 - INFO - Epoch 4: Train=0.1621, Val=0.1197, LR=1.00e-03, Time=107.4s
+2025-06-13 18:08:54,890 - INFO - [MEM] After Epoch 4 - RSS: 1410.68 MB
+Training:  40%|████      | 4/10 [07:25<11:04, 110.72s/it]2025-06-13 18:10:44,754 - INFO - Epoch 5: Train=0.1197, Val=0.1018, LR=1.00e-03, Time=109.9s
+2025-06-13 18:10:44,755 - INFO - [MEM] After Epoch 5 - RSS: 1458.62 MB
+Training:  50%|█████     | 5/10 [09:15<09:12, 110.41s/it]2025-06-13 18:12:32,409 - INFO - Epoch 6: Train=0.1315, Val=0.1050, LR=1.00e-03, Time=107.6s
+2025-06-13 18:12:32,410 - INFO - [MEM] After Epoch 6 - RSS: 1390.88 MB
+Training:  60%|██████    | 6/10 [11:03<07:17, 109.47s/it]2025-06-13 18:14:18,791 - INFO - Epoch 7: Train=0.1048, Val=0.1342, LR=1.00e-03, Time=106.4s
+2025-06-13 18:14:18,792 - INFO - [MEM] After Epoch 7 - RSS: 1489.17 MB
+Training:  70%|███████   | 7/10 [12:49<05:25, 108.46s/it]2025-06-13 18:16:06,514 - INFO - Epoch 8: Train=0.1510, Val=0.1850, LR=1.00e-03, Time=107.7s
+2025-06-13 18:16:06,515 - INFO - [MEM] After Epoch 8 - RSS: 1415.71 MB
+Training:  80%|████████  | 8/10 [14:37<03:36, 108.23s/it]2025-06-13 18:17:56,399 - INFO - Epoch 9: Train=0.1202, Val=0.1171, LR=1.00e-03, Time=109.9s
+2025-06-13 18:17:56,400 - INFO - [MEM] After Epoch 9 - RSS: 1449.94 MB
+Training:  90%|█████████ | 9/10 [16:27<01:48, 108.75s/it]2025-06-13 18:19:45,747 - INFO - Epoch 10: Train=0.0898, Val=0.1044, LR=1.00e-03, Time=109.3s
+2025-06-13 18:19:45,748 - INFO - [MEM] After Epoch 10 - RSS: 1452.02 MB
+Training: 100%|██████████| 10/10 [18:16<00:00, 108.93s/it]Training: 100%|██████████| 10/10 [18:16<00:00, 109.66s/it]
+2025-06-13 18:20:43,142 - INFO - Saved embeddings to latent
+2025-06-13 18:20:43,142 - INFO - [MEM] End of script - RSS: 1423.71 MB
+=== Job ended at Fri 13 Jun 18:20:46 CST 2025
