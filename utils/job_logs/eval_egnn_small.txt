@@ -1,0 +1,7 @@
+=== Job started at Mon 21 Jul 15:08:34 BST 2025
+/user/ljones/.gnn_juno/lib64/python3.9/site-packages/networkx/utils/backends.py:135: RuntimeWarning: networkx backend defined more than once: nx-loopback
+  backends.update(_get_backends("networkx.backends"))
+2025-07-21 15:08:39,336 - INFO - [Device] cuda
+2025-07-21 15:08:39,533 - INFO - Loaded model from output/egnn.pt
+2025-07-21 15:08:59,947 - INFO - Evaluation MSE: 2.8622, R2: 0.9041
+=== Job ended at Mon 21 Jul 15:09:01 BST 2025

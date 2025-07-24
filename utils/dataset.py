@@ -336,3 +336,142 @@ class EGNNJUNODataset(Dataset):
             raise ValueError('Invalid target label.')
 
         return Data(x=x, pos=pos, edge_index=edge_index, y=label_tensor)
+
+class EGNNMultiJUNODataset(Dataset):
+    def __init__(self, file_paths, edge_index, pos, limit_per_file=None, preload=False, device='cpu', stats=None, target=None, class_type=None):
+        self.file_paths = sorted(file_paths)
+        self.edge_index = edge_index.to(device)
+        self.pos = pos.detach().clone().float()
+        self.limit = limit_per_file
+        self.device = device
+        self.preload = preload
+        self.target = target
+        self.class_type =class_type
+
+        self.npe = []
+        self.fht = []
+        self.labels = []
+
+        self.file_handles = [None] * len(file_paths)
+        self.cumulative_lengths = [0]
+
+        for path in self.file_paths:
+            with h5py.File(path, 'r') as f:
+                length = len(f['fht']) if self.limit is None else min(len(f['fht']), self.limit)
+                self.cumulative_lengths.append(self.cumulative_lengths[-1] + length)
+
+                if self.preload:
+                    self.npe.append(np.log1p(f['npe'][:length]))
+                    self.fht.append(f['fht'][:length])
+                    self.labels.append(f['labels'][:length])
+
+        if self.preload:
+            self.npe = np.concatenate(self.npe, axis=0)
+            self.fht = np.concatenate(self.fht, axis=0)
+            self.labels = np.concatenate(self.labels, axis=0)
+
+        if stats:
+            self.npe_mean = stats['npe_mean']
+            self.npe_std = stats['npe_std']
+            self.fht_mean = stats['fht_mean']
+            self.fht_std = stats['fht_std']
+        else:
+            self._compute_global_stats()
+
+    def _compute_global_stats(self):
+        if self.preload:
+            npe = self.npe
+            fht = self.fht
+        else:
+            npe = []
+            fht = []
+            for path in tqdm(self.file_paths, desc="Calculating stats"):
+                with h5py.File(path, 'r') as f:
+                    length = len(f['fht']) if self.limit is None else min(len(f['fht']), self.limit)
+                    npe.append(np.log1p(f['npe'][:length]))
+                    fht.append(f['fht'][:length])
+            npe = np.concatenate(npe)
+            fht = np.concatenate(fht)
+
+        self.npe_mean = npe.mean()
+        self.npe_std = npe.std()
+        self.fht_mean = fht.mean()
+        self.fht_std = fht.std()
+
+    def __len__(self):
+        return self.cumulative_lengths[-1]
+
+    def _get_file_position(self, global_idx):
+        file_idx = np.searchsorted(self.cumulative_lengths, global_idx, side='right') - 1
+        local_idx = global_idx - self.cumulative_lengths[file_idx]
+        return file_idx, local_idx
+
+    def __getitem__(self, idx):
+        file_idx, local_idx = self._get_file_position(idx)
+
+        if self.preload:
+            npe = self.npe[idx]
+            fht = self.fht[idx]
+            label = self.labels[idx]
+        else:
+            if self.file_handles[file_idx] is None:
+                self.file_handles[file_idx] = h5py.File(self.file_paths[file_idx], 'r')
+            f = self.file_handles[file_idx]
+            npe = np.log1p(f['npe'][local_idx])
+            fht = f['fht'][local_idx]
+            label = f['labels'][local_idx]
+
+        npe = (npe - self.npe_mean) / self.npe_std
+        fht = (fht - self.fht_mean) / self.fht_std
+        features = np.stack((npe, fht), axis=1)
+
+        x = torch.tensor(features, dtype=torch.float32)
+        pos = self.pos.float().clone() 
+        edge_index = self.edge_index  
+        label_tensor = torch.tensor(label[1:4], dtype=torch.float32)
+
+        if self.target == 'direction':
+            label_tensor = label_tensor[0]
+        elif self.target == 'flavour':
+            matched = False  # add this to avoid undefined variable
+            if self.class_type == '3-label':
+                flavour_map = {
+                    "antinu_e": 0, "nu_e": 0,
+                    "antinu_mu": 1, "nu_mu": 1,
+                    "nc": 2
+                }
+                for flav, lab in flavour_map.items():
+                    if flav in self.file_paths[file_idx]:
+                        label_tensor = torch.tensor(lab)
+                        matched = True
+                        break
+                if not matched:
+                    raise ValueError(f"No known flavour found in filename: {self.file_paths[file_idx]}")
+            elif self.class_type == '5-label':
+                flavour_map = {
+                    "antinu_e": 0, "nu_e": 1,
+                    "antinu_mu": 2, "nu_mu": 3,
+                    "nc": 4
+                }
+                for flav, lab in flavour_map.items():
+                    if flav in self.file_paths[file_idx]:
+                        label_tensor = torch.tensor(lab)
+                        matched = True
+                        break
+                if not matched:
+                    raise ValueError(f"No known flavour found in filename: {self.file_paths[file_idx]}")
+            else:
+                raise ValueError('Invalid classification type')
+        elif self.target == 'energy':
+            label_tensor = label_tensor[2]
+        elif self.target is None:
+            pass
+        else:
+            raise ValueError('Invalid target.')
+
+        return Data(x=x, pos=pos, edge_index=edge_index, y=label_tensor)
+
+    def __del__(self):
+        for f in self.file_handles:
+            if f is not None:
+                f.close()

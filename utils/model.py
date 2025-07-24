@@ -91,7 +91,7 @@ class GATRegressor(nn.Module):
 
     def forward(self, x, edge_index, batch):
         z = self.encoder(x, edge_index, batch)
-        return self.regressor_head(z).squeeze(-1)  # shape [batch_size]
+        return self.regressor_head(z).squeeze(-1)
 
 # --- EGNN ---
 class EGNNLayer(nn.Module):
@@ -125,12 +125,12 @@ class EGNNLayer(nn.Module):
         edge_feat = self.edge_mlp(edge_input)
 
         agg = torch.zeros(x.size(0), edge_feat.size(1), device=x.device)
+        agg = agg.to(edge_feat.dtype)
         agg.index_add_(0, row, edge_feat)
 
         node_input = torch.cat([x, agg], dim=1)
         out = self.node_mlp(node_input)
 
-        # Residual + Norm
         out = self.norm(out + self.res_connection(x))
         return out, pos
 
@@ -140,6 +140,8 @@ class EGNNEncoder(nn.Module):
         self.egnn1 = EGNNLayer(in_features, hidden_dim)
         self.egnn2 = EGNNLayer(hidden_dim, hidden_dim)
         self.egnn3 = EGNNLayer(hidden_dim, hidden_dim)
+        self.egnn4 = EGNNLayer(hidden_dim, hidden_dim)
+
 
         self.lin = nn.Sequential(
             nn.Linear(hidden_dim, hidden_dim),
@@ -152,6 +154,7 @@ class EGNNEncoder(nn.Module):
         x, pos = self.egnn1(x, pos, edge_index)
         x, pos = self.egnn2(x, pos, edge_index)
         x, pos = self.egnn3(x, pos, edge_index)
+        x, pos = self.egnn4(x, pos, edge_index)
 
         batch_size = batch.max().item() + 1
         pooled = torch.zeros(batch_size, x.size(1), device=x.device)
