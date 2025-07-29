@@ -1,3 +1,27 @@
 Date/Time,Input,Batch Size,Learning Rate,Latent Dim,Hidden Dim,Num Epochs,Num Workers,Loss Type,Target,Train Size,Test SizeAvg, Epoch Time (s),Peak GPU Mem (MB),Peak CPU Mem (MB)
 2025-07-22 14:12:54,training_files.txt,64,0.001,32,64,10,4,regression,energy,256,64,9.81,46620.66,3785.88
 2025-07-23 13:18:05,training_files.txt,64,0.001,32,64,100,4,regression,energy,35055,8764,809.21,46620.66,6151.19
+2025-07-24 11:17:15,training_files.txt,5,0.001,64,128,10,1,regression,energy,256,64,13.92,8782.49,1515.51
+2025-07-24 11:28:21,training_files.txt,5,0.001,64,128,10,1,regression,direction,256,64,13.92,8782.49,1509.75
+2025-07-24 11:49:59,training_files.txt,5,0.001,64,128,10,1,regression,direction,256,64,13.86,8782.49,1505.46
+2025-07-24 11:55:02,training_files.txt,5,0.001,64,128,10,1,regression,energy,256,64,14.01,8782.49,1503.4
+2025-07-24 11:59:19,training_files.txt,5,0.001,64,128,1,1,regression,energy,256,64,14.43,8782.49,1519.79
+2025-07-24 12:01:00,training_files.txt,5,0.001,64,128,1,1,regression,energy,256,64,14.1,8782.49,1502.66
+2025-07-24 12:04:00,training_files.txt,5,0.001,64,128,1,1,regression,energy,256,64,14.14,8782.49,1496.5
+2025-07-24 13:13:51,training_files.txt,5,0.001,64,128,1,1,regression,energy,256,64,13.94,8782.49,1518.39
+2025-07-24 13:16:31,training_files.txt,5,0.001,64,128,1,1,regression,energy,256,64,13.99,8782.49,1514.46
+2025-07-24 13:18:55,training_files.txt,5,0.001,64,128,1,1,regression,energy,256,64,14.0,8782.49,1515.34
+2025-07-24 13:20:02,training_files.txt,5,0.001,64,128,1,1,regression,energy,256,64,14.24,8782.49,1526.94
+2025-07-24 13:21:55,training_files.txt,5,0.001,64,128,1,1,regression,energy,256,64,13.99,8782.49,1527.81
+2025-07-24 14:32:43,training_files.txt,5,0.001,64,128,10,1,regression,energy,256,64,14.43,8836.85,1524.41
+2025-07-24 14:52:32,training_files.txt,5,0.001,64,128,10,1,regression,energy,256,64,14.23,12005.0,1621.61
+2025-07-24 15:10:03,training_files.txt,5,0.001,64,128,10,1,regression,energy,256,64,17.08,13505.45,1637.99
+2025-07-24 15:30:44,training_files.txt,20,0.001,64,128,10,1,regression,energy,256,64,30.76,68621.1,1869.54
+2025-07-24 15:42:55,training_files.txt,20,0.001,64,128,100,1,regression,energy,256,64,30.73,68621.1,1901.09
+2025-07-24 16:14:07,training_files.txt,20,0.001,64,128,100,1,regression,energy,256,64,30.17,68851.07,1874.02
+2025-07-24 16:41:46,training_files.txt,20,0.001,64,128,100,1,regression,energy,256,64,37.77,74852.86,1874.53
+2025-07-24 17:11:31,training_files.txt,10,0.001,64,128,100,1,regression,energy,256,64,33.97,49546.48,1762.49
+2025-07-24 17:46:45,training_files.txt,10,0.001,64,128,100,1,regression,energy,256,64,33.53,49684.46,1780.69
+2025-07-25 10:53:11,training_files.txt,10,0.001,64,128,1,1,regression,energy,256,64,28.23,72226.81,1812.74
+2025-07-28 10:28:55,training_files.txt,10,0.001,64,128,1,1,classification,flavour,256,64,29.73,72226.82,1770.57
+2025-07-28 12:27:59,training_files.txt,10,0.001,64,128,100,4,classification,flavour,2495,624,256.01,72226.82,2228.93

@@ -1,8 +1,8 @@
 #!/bin/bash
 #SBATCH --job-name=egnn-eval-test-gpu
 #SBATCH --partition=alpha
-#SBATCH --gres=gpu:tesla_a100:1
-#SBATCH --cpus-per-task=6
+#SBATCH --gres=gpu:1
+#SBATCH --cpus-per-task=2
 #SBATCH --mem=12G
 #SBATCH --time=02:00:00
 #SBATCH --output=/dev/null
@@ -12,7 +12,7 @@ source /user/ljones/.gnn_juno/bin/activate
 export NETWORKX_NO_BACKENDS=1
 export PYTORCH_CUDA_ALLOC_CONF=expandable_segments:True
 
-export CUDA_VISIBLE_DEVICES=2
+export CUDA_VISIBLE_DEVICES=0
 
 cd /user/ljones/GNNs-for-JUNO
 
@@ -20,6 +20,6 @@ cd /user/ljones/GNNs-for-JUNO
     echo "=== Job started at $(date)"
     echo "=== Running on host: $(hostname) ==="
     echo "=== CUDA_VISIBLE_DEVICES: $CUDA_VISIBLE_DEVICES ==="
-    python utils/eval_regress.py --config utils/config.yaml 
+    python utils/eval_class.py --config utils/config.yaml 
     echo "=== Job ended at $(date)"
-} &> utils/job_logs/eval_egnn.txt
+} &> utils/job_logs/eval_egnn_class.txt

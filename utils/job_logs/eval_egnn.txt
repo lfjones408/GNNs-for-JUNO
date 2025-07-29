@@ -1,9 +1,9 @@
-=== Job started at Wed 23 Jul 14:28:35 BST 2025
+=== Job started at Thu 24 Jul 16:42:10 BST 2025
 === Running on host: alpha.ph.liv.ac.uk ===
 === CUDA_VISIBLE_DEVICES: 2 ===
 /user/ljones/.gnn_juno/lib64/python3.9/site-packages/networkx/utils/backends.py:135: RuntimeWarning: networkx backend defined more than once: nx-loopback
   backends.update(_get_backends("networkx.backends"))
-2025-07-23 14:28:40,602 - INFO - [Device] cuda
-2025-07-23 14:28:41,112 - INFO - Loaded model from output/egnn.pt
-2025-07-23 14:39:49,391 - INFO - Evaluation MSE: 9.2189, R2: 0.6842
-=== Job ended at Wed 23 Jul 14:39:51 BST 2025
+2025-07-24 16:42:23,853 - INFO - [Device] cuda
+2025-07-24 16:42:24,439 - INFO - Loaded model from output/egnn.pt
+2025-07-24 16:42:52,646 - INFO - Evaluation MSE: 10.4402, R2: 0.6359
+=== Job ended at Thu 24 Jul 16:42:54 BST 2025

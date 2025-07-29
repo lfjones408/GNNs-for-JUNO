@@ -1,0 +1,14 @@
+=== Job started at Mon 28 Jul 15:11:09 BST 2025
+=== Running on host: alpha.ph.liv.ac.uk ===
+=== CUDA_VISIBLE_DEVICES: 0 ===
+/user/ljones/.gnn_juno/lib64/python3.9/site-packages/networkx/utils/backends.py:135: RuntimeWarning: networkx backend defined more than once: nx-loopback
+  backends.update(_get_backends("networkx.backends"))
+2025-07-28 15:11:14,985 - INFO - [Device] cuda
+2025-07-28 15:11:15,257 - INFO - Loaded model from output/egnn.pt
+2025-07-28 15:11:26,732 - INFO -  preds_all[0] datatype = int64
+2025-07-28 15:11:26,735 - INFO - Confusion Matrix: 
+ [[33 13  4]
+ [ 5 78  7]
+ [ 0  7 13]]
+2025-07-28 15:11:26,738 - INFO - Accuracy Score 0.775 | Precision Score [0.86842105 0.79591837 0.54166667] | Recall Score [0.66       0.86666667 0.65      ]
+=== Job ended at Mon 28 Jul 15:11:29 BST 2025

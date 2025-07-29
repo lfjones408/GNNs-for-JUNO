@@ -7,10 +7,11 @@ training:
   epochs: 100
   batch_size: 10
   lr: 0.001
-  latent_dim: 32
-  hidden_dim: 64
+  latent_dim: 64
+  hidden_dim: 128
   patience: 10
-  limit: 10
-  num_workers: 4
-  loss: regression
-  target: energy
+  limit: 
+  num_workers: 6
+  loss: classification
+  class_type: 5-label
+  target: flavour

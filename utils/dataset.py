@@ -242,7 +242,7 @@ class TripletJUNODataset(Dataset):
 
         negative = self.base_dataset[random.choice(neg_candidates)]
 
-        return anchor, positive, negativ
+        return anchor, positive, negative
 
 class EGNNJUNODataset(Dataset):
     def __init__(self, h5_path, edge_index, pos, limit=None, preload=False, stats=None, target=None):
@@ -426,12 +426,25 @@ class EGNNMultiJUNODataset(Dataset):
         features = np.stack((npe, fht), axis=1)
 
         x = torch.tensor(features, dtype=torch.float32)
-        pos = self.pos.float().clone() 
-        edge_index = self.edge_index  
+        x = torch.cat([x, torch.zeros(1, x.size(1))], dim=0)
+
+        pos = self.pos.float().clone()
+        pos = torch.cat([pos, torch.zeros(1, 3)], dim=0)
+
+        global_idx = x.size(0) -1 
+        pmt_indices = torch.randperm(global_idx)[:1000]
+        global_edges = torch.stack([
+            torch.cat([pmt_indices, torch.full((1000,), global_idx)]),
+            torch.cat([torch.full((1000,), global_idx), pmt_indices])
+        ], dim=0)
+
+        edge_index = self.edge_index
+        edge_index = torch.cat([edge_index, global_edges], dim=1)
+
         label_tensor = torch.tensor(label[1:4], dtype=torch.float32)
 
         if self.target == 'direction':
-            label_tensor = label_tensor[0]
+            y = label_tensor[0]
         elif self.target == 'flavour':
             matched = False  # add this to avoid undefined variable
             if self.class_type == '3-label':
@@ -442,7 +455,7 @@ class EGNNMultiJUNODataset(Dataset):
                 }
                 for flav, lab in flavour_map.items():
                     if flav in self.file_paths[file_idx]:
-                        label_tensor = torch.tensor(lab)
+                        y = torch.tensor(lab)
                         matched = True
                         break
                 if not matched:
@@ -455,7 +468,7 @@ class EGNNMultiJUNODataset(Dataset):
                 }
                 for flav, lab in flavour_map.items():
                     if flav in self.file_paths[file_idx]:
-                        label_tensor = torch.tensor(lab)
+                        y = torch.tensor(lab)
                         matched = True
                         break
                 if not matched:
@@ -463,13 +476,13 @@ class EGNNMultiJUNODataset(Dataset):
             else:
                 raise ValueError('Invalid classification type')
         elif self.target == 'energy':
-            label_tensor = label_tensor[2]
+            y = label_tensor[2]
         elif self.target is None:
             pass
         else:
             raise ValueError('Invalid target.')
 
-        return Data(x=x, pos=pos, edge_index=edge_index, y=label_tensor)
+        return Data(x=x, pos=pos, edge_index=edge_index, y=y, energy=label_tensor[2], direction=label_tensor[0], flavour=label_tensor[1])
 
     def __del__(self):
         for f in self.file_handles:

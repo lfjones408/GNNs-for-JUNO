@@ -2,6 +2,7 @@ import torch
 import torch.nn as nn
 import torch.nn.functional as F
 from torch_geometric.nn import GATv2Conv, global_mean_pool, TopKPooling
+from torch_geometric.utils import softmax
 
 # --- GAT ---
 
@@ -95,17 +96,21 @@ class GATRegressor(nn.Module):
 
 # --- EGNN ---
 class EGNNLayer(nn.Module):
-    def __init__(self, in_features, out_features):
+    def __init__(self, in_features, out_features, dropout_prob=0.1):
         super().__init__()
         self.edge_mlp = nn.Sequential(
-            nn.Linear(2 * in_features + 1, out_features),
+            nn.Linear(2 * in_features + 5, out_features),
             nn.ReLU(),
-            nn.Linear(out_features, out_features)
+            nn.Dropout(dropout_prob),
+            nn.Linear(out_features, out_features),
+            nn.ReLU()
         )
         self.node_mlp = nn.Sequential(
             nn.Linear(in_features + out_features, out_features),
             nn.ReLU(),
-            nn.Linear(out_features, out_features)
+            nn.Dropout(dropout_prob),
+            nn.Linear(out_features, out_features),
+            nn.ReLU()
         )
         self.norm = nn.LayerNorm(out_features)
 
@@ -119,9 +124,14 @@ class EGNNLayer(nn.Module):
         row, col = edge_index
         x_i, x_j = x[row], x[col]
         pos_i, pos_j = pos[row], pos[col]
-        dist = torch.norm(pos_i - pos_j, dim=1, keepdim=True)
+        time_i, time_j = x[row][:,1], x[col][:,1]
+        charge_i, charge_j = x[row][:,0], x[col][:,1]
 
-        edge_input = torch.cat([x_i, x_j, dist], dim=1)
+        dist = (pos_i - pos_j)
+        time_diff = (time_i - time_j).unsqueeze(1)
+        charge_diff = (charge_i - charge_j).unsqueeze(1)
+
+        edge_input = torch.cat([x_i, x_j, dist, time_diff, charge_diff], dim=1)
         edge_feat = self.edge_mlp(edge_input)
 
         agg = torch.zeros(x.size(0), edge_feat.size(1), device=x.device)
@@ -133,14 +143,86 @@ class EGNNLayer(nn.Module):
 
         out = self.norm(out + self.res_connection(x))
         return out, pos
+    
+class EGNNLayerWithAttention(nn.Module):
+    def __init__(self, in_features, out_features, dropout_prob=0.1):
+        super().__init__()
+        self.edge_mlp = nn.Sequential(
+            nn.Linear(2 * in_features + 5, out_features),
+            nn.ReLU(),
+            nn.Dropout(dropout_prob),
+            nn.Linear(out_features, out_features),
+            nn.ReLU()
+        )
+    
+        self.att_mlp = nn.Sequential(
+            nn.Linear(2 * in_features + 5, 64),
+            nn.LeakyReLU(),
+            nn.Linear(64, 1)
+        )
+
+        self.gate_mlp = nn.Sequential(
+            nn.Linear(2 * in_features + 5, 64),
+            nn.ReLU(),
+            nn.Linear(64, 1),
+            nn.Sigmoid()
+        )
+
+        self.node_mlp = nn.Sequential(
+            nn.Linear(in_features + out_features, out_features),
+            nn.ReLU(),
+            nn.Dropout(dropout_prob),
+            nn.Linear(out_features, out_features),
+            nn.ReLU()
+        )
+        
+        self.norm = nn.BatchNorm1d(out_features)
+        
+        if in_features != out_features:
+            self.res_connection = nn.Linear(in_features, out_features)
+        else:
+            self.res_connection = nn.Identity()
+
+    def forward(self, x, pos, edge_index):
+        row, col = edge_index
+        x_i, x_j = x[row], x[col]
+        pos_i, pos_j = pos[row], pos[col]
+        time_i, time_j = x[row][:,1], x[col][:,1]
+        charge_i, charge_j = x[row][:,0], x[col][:,0]
+
+        dist = (pos_i - pos_j)
+        time_diff = (time_i - time_j).unsqueeze(1)
+        charge_diff = (charge_i - charge_j).unsqueeze(1)
+
+        edge_input = torch.cat([x_i, x_j, dist, time_diff, charge_diff], dim=1)
+
+        edge_feat = self.edge_mlp(edge_input)
+
+        alpha = self.att_mlp(edge_input).squeeze(-1)   
+        alpha = softmax(alpha, index=row, dim=0)  
+
+        gate = self.gate_mlp(edge_input)
+
+        edge_feat = edge_feat * alpha.unsqueeze(1) * gate
+
+        agg = torch.zeros(x.size(0), edge_feat.size(1), device=x.device, dtype=edge_feat.dtype)
+        agg.index_add_(0, row, edge_feat)
+
+        node_input = torch.cat([x, agg], dim=1)
+        out = self.node_mlp(node_input)
+
+        out = self.norm(out + self.res_connection(x))
+        return out, pos
 
 class EGNNEncoder(nn.Module):
     def __init__(self, in_features, hidden_dim, latent_dim):
         super().__init__()
-        self.egnn1 = EGNNLayer(in_features, hidden_dim)
-        self.egnn2 = EGNNLayer(hidden_dim, hidden_dim)
-        self.egnn3 = EGNNLayer(hidden_dim, hidden_dim)
-        self.egnn4 = EGNNLayer(hidden_dim, hidden_dim)
+        self.egnn1 = EGNNLayerWithAttention(in_features, hidden_dim)
+        self.egnn2 = EGNNLayerWithAttention(hidden_dim, hidden_dim)
+        self.egnn3 = EGNNLayerWithAttention(hidden_dim, hidden_dim)
+        self.egnn4 = EGNNLayerWithAttention(hidden_dim, hidden_dim)
+        self.egnn5 = EGNNLayerWithAttention(hidden_dim, hidden_dim)
+        self.egnn6 = EGNNLayerWithAttention(hidden_dim, hidden_dim)
 
 
         self.lin = nn.Sequential(
@@ -155,11 +237,21 @@ class EGNNEncoder(nn.Module):
         x, pos = self.egnn2(x, pos, edge_index)
         x, pos = self.egnn3(x, pos, edge_index)
         x, pos = self.egnn4(x, pos, edge_index)
+        x, pos = self.egnn5(x, pos, edge_index)
+        x, pos = self.egnn6(x, pos, edge_index)
 
-        batch_size = batch.max().item() + 1
-        pooled = torch.zeros(batch_size, x.size(1), device=x.device)
-        pooled.index_add_(0, batch, x)
-        counts = torch.bincount(batch, minlength=batch_size).float().unsqueeze(1)
+        num_nodes = batch.size(0)
+        num_graphs = batch.max().item() +1
+        global_node_indices = torch.arange(num_graphs, device=batch.device) + (num_nodes - num_graphs)
+        mask = torch.ones(num_nodes, dtype=torch.bool, device=batch.device)
+        mask[global_node_indices] = False
+        x_masked = x[mask]
+        batch_masked = batch[mask]
+
+        pooled = torch.zeros(num_graphs, x.size(1), device=x.device, dtype=x.dtype)
+        pooled.index_add_(0, batch_masked, x_masked)
+
+        counts = torch.bincount(batch_masked, minlength=num_graphs).float().unsqueeze(1)
         x_mean = pooled / (counts + 1e-8)
 
         return self.lin(x_mean)

@@ -18,7 +18,7 @@ import logging
 import random
 from torch.amp import autocast, GradScaler
 
-from model import EGNNEnergyRegressor
+from model import EGNNEnergyRegressor, EGNNFlavourClassifier
 from dataset import EGNNJUNODataset, EGNNMultiJUNODataset
 from loss import Losses
 
@@ -35,7 +35,7 @@ def load_stats(stats_path):
     stats = np.load(stats_path)
     return {k: stats[k].item() for k in stats}
 
-def get_dataloaders(h5_path, edge_index, pos, stats, batch_size, val_split=0.2, limit=None, num_workers=2, target=None, preload=False, device='cpu'):
+def get_dataloaders(h5_path, edge_index, pos, stats, batch_size, val_split=0.2, limit=None, num_workers=2, target=None, class_type=None, preload=False, device='cpu'):
     if isinstance(h5_path, list):
         file_list = h5_path
     elif os.path.isdir(h5_path):
@@ -54,6 +54,7 @@ def get_dataloaders(h5_path, edge_index, pos, stats, batch_size, val_split=0.2, 
             limit_per_file=limit,
             preload=preload,
             target=target,
+            class_type=class_type,
             device=device
         )
     else:
@@ -148,6 +149,56 @@ def log_summary_to_csv(cfg, avg_time, train_size, test_size, peak_gpu_mem, peak_
             round(peak_cpu_mem, 2)
         ])
 
+def plot_input_data(train_loader, test_loader, save_path='plots/target_hist.png'):
+    train_e, train_phi, train_flav = []
+    test_e, test_phi, test_flav = []
+    flavour_map = {
+                    "antinu_e": 0, "nu_e": 1,
+                    "antinu_mu": 2, "nu_mu": 3,
+                    "nc": 4
+                }
+
+    for batch in train_loader:
+        train_e.append(batch.energy.numpy())
+        train_phi.append(batch.direction.numpy())
+        train_flav.append(batch.flavour.numpy())
+
+    for batch in test_loader:
+        test_e.append(batch.energy.numpy())
+        test_phi.append(batch.direction.numpy())
+        test_flav.append(batch.flavour.numpy())
+
+    train_e = np.array(train_e).flatten()
+    train_phi = np.array(train_phi).flatten()
+    train_flav = np.array(train_flav).flatten()
+
+    test_e = np.array(test_e).flatten()
+    test_phi = np.array(test_phi).flatten()
+    test_flav = np.array(test_flav).flatten()
+ 
+    for flavour, label in flavour_map.items():
+        globals()[f"mask_{flavour}_training"] = train_flav == label
+        globals()[f"mask_{flavour}_test"] = test_flav == label
+
+    fig = plt.figure(figsize=(12,12))
+    ax_train_e   = fig.add_subplot(211)
+    ax_test_e    = fig.add_subplot(212)
+
+    for flavour in flavour_map.keys():
+        mask_train = 'mask_'+flavour+'_training'
+        ax_train_e.hist(train_e[mask_train], bins=20, histtype='step', linewidth=2.5, label=flavour)
+    ax_train_e.set_xlabel('Energy (GeV)')
+    ax_train_e.set_ylabel('Freq')
+    
+    for flavour in flavour_map.keys():
+        mask_test = 'mask_'+flavour+'_training'
+        ax_test_e.hist(train_e[mask_test], bins=20, histtype='step', linewidth=2.5, label=flavour)
+    ax_test_e.set_xlabel('Energy (GeV)')
+    ax_test_e.set_ylabel('Freq')
+
+    plt.legend()
+    plt.savefig(save_path)
+
 def main():
     parser = argparse.ArgumentParser()
     parser.add_argument('--config', type=str, required=True)
@@ -173,6 +224,7 @@ def main():
     limit = cfg['training']['limit']
     num_workers = cfg['training']['num_workers']
     loss_fn = Losses(loss_type=cfg['training']['loss'])
+    class_type = cfg['training']['class_type']
     target = cfg['training']['target']
     output_dir = cfg['output']
     os.makedirs(output_dir, exist_ok=True)
@@ -181,14 +233,17 @@ def main():
     device = torch.device(device_type)
     logger.info(f"[Device] {device} | Total GPU Memory: {torch.cuda.get_device_properties(0).total_memory / (1024 ** 2):.2f} MB | Memory Allocated {torch.cuda.memory_allocated(device) / (1024 ** 2)} MB")
 
-    train_loader, val_loader = get_dataloaders(h5_path=h5_path, edge_index=edge_index, stats=stats, pos=pos, batch_size=batch_size, num_workers=num_workers, limit=limit, target=target)
+    train_loader, val_loader = get_dataloaders(h5_path=h5_path, edge_index=edge_index, stats=stats, pos=pos, batch_size=batch_size, num_workers=num_workers, limit=limit, target=target, class_type=class_type)
     logger.info(f"[Data] train batch: {len(train_loader)} | validation batch: {len(val_loader)}")
     logger.info(f"[Data] train evt size: {len(train_loader.dataset)} | validation evt size: {len(val_loader.dataset)}")
 
-    model = EGNNEnergyRegressor(
+    plot_input_data(train_loader, val_loader, save_path=os.path.join(output_dir, 'plots/target_hist.png'))
+
+    model = EGNNFlavourClassifier(
         in_features=2,
         hidden_dim=hidden_dim,
-        latent_dim=latent_dim
+        latent_dim=latent_dim,
+        num_classes= 3 if class_type=='3-label' else 5
     ).to(device)
 
     optimizer = Adam(model.parameters(), lr=lr)
