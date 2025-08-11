@@ -12,7 +12,7 @@ source /user/ljones/.gnn_juno/bin/activate
 export NETWORKX_NO_BACKENDS=1
 export PYTORCH_CUDA_ALLOC_CONF=expandable_segments:True
 
-export CUDA_VISIBLE_DEVICES=0
+export CUDA_VISIBLE_DEVICES=5
 
 cd /user/ljones/GNNs-for-JUNO
 
@@ -20,6 +20,6 @@ cd /user/ljones/GNNs-for-JUNO
     echo "=== Job started at $(date)"
     echo "=== Running on host: $(hostname) ==="
     echo "=== CUDA_VISIBLE_DEVICES: $CUDA_VISIBLE_DEVICES ==="
-    python utils/eval_class.py --config utils/config.yaml 
+    python utils/eval_regress.py --config utils/config.yaml 
     echo "=== Job ended at $(date)"
-} &> utils/job_logs/eval_egnn_class.txt
+} &> utils/job_logs/eval_egnn_regress.txt

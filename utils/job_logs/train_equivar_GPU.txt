@@ -1,10 +1,12 @@
-=== Job started at Mon 28 Jul 15:36:28 BST 2025 ===
+=== Job started at Tue 29 Jul 13:30:27 BST 2025 ===
 === Running on host: alpha.ph.liv.ac.uk ===
-=== CUDA_VISIBLE_DEVICES: 0 ===
+=== CUDA_VISIBLE_DEVICES: 4 ===
 /user/ljones/.gnn_juno/lib64/python3.9/site-packages/networkx/utils/backends.py:135: RuntimeWarning: networkx backend defined more than once: nx-loopback
   backends.update(_get_backends("networkx.backends"))
-2025-07-28 15:36:32,623 - INFO - [Device] cuda | Total GPU Memory: 81155.75 MB | Memory Allocated 0.0 MB
-2025-07-28 15:36:32,663 - INFO - [Data] train batch: 3505 | validation batch: 876
-2025-07-28 15:36:32,663 - INFO - [Data] train evt size: 35055 | validation evt size: 8764
-2025-07-28 15:40:41,470 - INFO - [Memory] GPU Allocated: 2.90 MB | GPU Reserved: 4.00 MB | CPU RSS: 1468.27 MB
-2025-07-28 16:40:46,107 - INFO - [Epoch 1] Train: 1.3585 | Val: 1.2751 | Time: 3604.6s
+2025-07-29 13:30:31,972 - INFO - [Device] cuda | Total GPU Memory: 81155.75 MB | Memory Allocated 0.0 MB
+2025-07-29 13:30:32,012 - INFO - [Data] train batch: 8 | validation batch: 2
+2025-07-29 13:30:32,012 - INFO - [Data] train evt size: 128 | validation evt size: 32
+2025-07-29 13:30:34,840 - INFO - [Memory] GPU Allocated: 0.94 MB | GPU Reserved: 2.00 MB | CPU RSS: 1425.28 MB
+2025-07-29 13:30:45,135 - INFO - [Epoch 1] Train: 1.5625 | Val: 1.5109 | Time: 10.3s
+2025-07-29 13:30:45,157 - INFO - [Device] cuda | Total GPU Memory Used: 65838.88 MB
+=== Job ended at Tue 29 Jul 13:30:46 BST 2025 ===

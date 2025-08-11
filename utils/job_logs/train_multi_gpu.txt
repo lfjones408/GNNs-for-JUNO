@@ -1,0 +1,140 @@
+=== Job started at Wed  6 Aug 15:22:35 BST 2025 ===
+=== Running on host: alpha.ph.liv.ac.uk ===
+=== CUDA_VISIBLE_DEVICES: 1,5 ===
+W0806 15:22:36.864602 1998460 torch/distributed/run.py:766] 
+W0806 15:22:36.864602 1998460 torch/distributed/run.py:766] *****************************************
+W0806 15:22:36.864602 1998460 torch/distributed/run.py:766] Setting OMP_NUM_THREADS environment variable for each process to be 1 in default, to avoid your system being overloaded, please further tune the variable for optimal performance in your application as needed. 
+W0806 15:22:36.864602 1998460 torch/distributed/run.py:766] *****************************************
+/user/ljones/.gnn_juno/lib64/python3.9/site-packages/networkx/utils/backends.py:135: RuntimeWarning: networkx backend defined more than once: nx-loopback
+  backends.update(_get_backends("networkx.backends"))
+/user/ljones/.gnn_juno/lib64/python3.9/site-packages/networkx/utils/backends.py:135: RuntimeWarning: networkx backend defined more than once: nx-loopback
+  backends.update(_get_backends("networkx.backends"))
+2025-08-06 15:22:41,943 - INFO - [Device] cuda:0 | Total GPU Memory: 81155.75 MB | Memory Allocated 0.0 MB
+2025-08-06 15:22:41,956 - INFO - [Data] train batch: 8 | validation batch: 4
+2025-08-06 15:22:41,956 - INFO - [Data] train evt size: 256 | validation evt size: 64
+/user/ljones/.gnn_juno/lib64/python3.9/site-packages/torch/distributed/distributed_c10d.py:4631: UserWarning: No device id is provided via `init_process_group` or `barrier `. Using the current device set by the user. 
+  warnings.warn(  # warn only once
+[rank0]:[W806 15:22:42.355396516 ProcessGroupNCCL.cpp:4718] [PG ID 0 PG GUID 0 Rank 0]  using GPU 0 as device used by this process is currently unknown. This can potentially cause a hang if this rank to GPU mapping is incorrect. You can pecify device_id in init_process_group() to force use of a particular device.
+2025-08-06 15:22:42,419 - INFO - [Device] cuda:1 | Total GPU Memory: 81155.75 MB | Memory Allocated 0.0 MB
+2025-08-06 15:22:42,435 - INFO - [Data] train batch: 8 | validation batch: 4
+2025-08-06 15:22:42,435 - INFO - [Data] train evt size: 256 | validation evt size: 64
+/user/ljones/.gnn_juno/lib64/python3.9/site-packages/torch/distributed/distributed_c10d.py:4631: UserWarning: No device id is provided via `init_process_group` or `barrier `. Using the current device set by the user. 
+  warnings.warn(  # warn only once
+[rank1]:[W806 15:22:42.494447506 ProcessGroupNCCL.cpp:4718] [PG ID 0 PG GUID 0 Rank 1]  using GPU 1 as device used by this process is currently unknown. This can potentially cause a hang if this rank to GPU mapping is incorrect. You can pecify device_id in init_process_group() to force use of a particular device.
+2025-08-06 15:22:42,769 - INFO - [Model] Wrapped in DDP
+2025-08-06 15:22:42,769 - INFO - [Model] Wrapped in DDP
+2025-08-06 15:22:42,775 - INFO - [Memory] GPU Allocated: 15.69 MB | GPU Reserved: 28.00 MB | CPU RSS: 991.08 MB
+2025-08-06 15:22:42,776 - INFO - [Memory] GPU Allocated: 15.69 MB | GPU Reserved: 28.00 MB | CPU RSS: 997.98 MB
+2025-08-06 15:22:56,832 - INFO - [Epoch 1] Train: 0.9990 | Val: 0.9862 | Train Acc: 0.5469 | Val Acc: 0.5781 | Time: 14.1s
+2025-08-06 15:23:10,398 - INFO - [Epoch 2] Train: 0.9371 | Val: 1.1066 | Train Acc: 0.5312 | Val Acc: 0.2812 | Time: 13.5s
+2025-08-06 15:23:24,013 - INFO - [Epoch 3] Train: 0.8910 | Val: 1.0276 | Train Acc: 0.5625 | Val Acc: 0.3125 | Time: 13.5s
+2025-08-06 15:23:37,874 - INFO - [Epoch 4] Train: 0.8849 | Val: 0.9633 | Train Acc: 0.5781 | Val Acc: 0.4688 | Time: 13.7s
+2025-08-06 15:23:51,901 - INFO - [Epoch 5] Train: 0.8676 | Val: 1.0522 | Train Acc: 0.5469 | Val Acc: 0.3594 | Time: 13.9s
+2025-08-06 15:24:05,498 - INFO - [Epoch 6] Train: 0.8650 | Val: 0.8756 | Train Acc: 0.5625 | Val Acc: 0.5000 | Time: 13.5s
+2025-08-06 15:24:19,471 - INFO - [Epoch 7] Train: 0.8191 | Val: 0.8911 | Train Acc: 0.5547 | Val Acc: 0.5781 | Time: 13.9s
+2025-08-06 15:24:33,347 - INFO - [Epoch 8] Train: 0.8194 | Val: 0.8487 | Train Acc: 0.5781 | Val Acc: 0.5312 | Time: 13.8s
+2025-08-06 15:24:47,211 - INFO - [Epoch 9] Train: 0.7744 | Val: 0.8387 | Train Acc: 0.5938 | Val Acc: 0.5625 | Time: 13.8s
+2025-08-06 15:25:00,804 - INFO - [Epoch 10] Train: 0.8110 | Val: 0.9612 | Train Acc: 0.5703 | Val Acc: 0.5625 | Time: 13.5s
+2025-08-06 15:25:14,819 - INFO - [Epoch 11] Train: 0.8182 | Val: 0.9178 | Train Acc: 0.5859 | Val Acc: 0.5625 | Time: 13.9s
+2025-08-06 15:25:28,672 - INFO - [Epoch 12] Train: 0.8028 | Val: 0.8350 | Train Acc: 0.6250 | Val Acc: 0.5781 | Time: 13.7s
+2025-08-06 15:25:42,743 - INFO - [Epoch 13] Train: 0.8190 | Val: 0.8367 | Train Acc: 0.6016 | Val Acc: 0.5938 | Time: 14.0s
+2025-08-06 15:25:56,484 - INFO - [Epoch 14] Train: 0.8216 | Val: 0.8813 | Train Acc: 0.5781 | Val Acc: 0.6406 | Time: 13.6s
+2025-08-06 15:26:10,603 - INFO - [Epoch 15] Train: 0.8229 | Val: 0.8740 | Train Acc: 0.5859 | Val Acc: 0.6094 | Time: 14.0s
+2025-08-06 15:26:24,550 - INFO - [Epoch 16] Train: 0.7929 | Val: 0.9055 | Train Acc: 0.6094 | Val Acc: 0.4844 | Time: 13.9s
+2025-08-06 15:26:38,136 - INFO - [Epoch 17] Train: 0.7642 | Val: 0.8507 | Train Acc: 0.6641 | Val Acc: 0.5781 | Time: 13.5s
+2025-08-06 15:26:52,313 - INFO - [Epoch 18] Train: 0.7730 | Val: 0.9113 | Train Acc: 0.6250 | Val Acc: 0.5312 | Time: 14.1s
+2025-08-06 15:27:05,998 - INFO - [Epoch 19] Train: 0.7246 | Val: 0.8541 | Train Acc: 0.6562 | Val Acc: 0.5156 | Time: 13.6s
+2025-08-06 15:27:19,941 - INFO - [Epoch 20] Train: 0.7394 | Val: 0.8471 | Train Acc: 0.6797 | Val Acc: 0.5000 | Time: 13.8s
+2025-08-06 15:27:33,539 - INFO - [Epoch 21] Train: 0.7169 | Val: 0.8375 | Train Acc: 0.6641 | Val Acc: 0.5156 | Time: 13.5s
+2025-08-06 15:27:47,581 - INFO - [Epoch 22] Train: 0.7052 | Val: 0.8221 | Train Acc: 0.6875 | Val Acc: 0.5000 | Time: 14.0s
+2025-08-06 15:28:01,397 - INFO - [Epoch 23] Train: 0.7062 | Val: 0.8211 | Train Acc: 0.6719 | Val Acc: 0.5156 | Time: 13.7s
+2025-08-06 15:28:15,479 - INFO - [Epoch 24] Train: 0.7011 | Val: 0.8295 | Train Acc: 0.6562 | Val Acc: 0.5000 | Time: 14.0s
+2025-08-06 15:28:29,492 - INFO - [Epoch 25] Train: 0.6864 | Val: 0.8354 | Train Acc: 0.6719 | Val Acc: 0.5312 | Time: 13.9s
+2025-08-06 15:28:43,327 - INFO - [Epoch 26] Train: 0.7056 | Val: 0.8436 | Train Acc: 0.6953 | Val Acc: 0.5156 | Time: 13.8s
+2025-08-06 15:28:57,327 - INFO - [Epoch 27] Train: 0.6833 | Val: 0.8491 | Train Acc: 0.6719 | Val Acc: 0.5156 | Time: 13.9s
+2025-08-06 15:29:11,411 - INFO - [Epoch 28] Train: 0.6935 | Val: 0.8662 | Train Acc: 0.7031 | Val Acc: 0.5625 | Time: 14.0s
+2025-08-06 15:29:25,436 - INFO - [Epoch 29] Train: 0.6592 | Val: 0.8715 | Train Acc: 0.7031 | Val Acc: 0.5312 | Time: 13.9s
+2025-08-06 15:29:39,477 - INFO - [Epoch 30] Train: 0.6716 | Val: 0.8726 | Train Acc: 0.6953 | Val Acc: 0.5312 | Time: 13.9s
+2025-08-06 15:29:53,954 - INFO - [Epoch 31] Train: 0.6752 | Val: 0.8731 | Train Acc: 0.6719 | Val Acc: 0.5312 | Time: 14.4s
+2025-08-06 15:30:07,909 - INFO - [Epoch 32] Train: 0.6376 | Val: 0.8733 | Train Acc: 0.7266 | Val Acc: 0.5312 | Time: 13.6s
+2025-08-06 15:30:22,118 - INFO - [Epoch 33] Train: 0.6668 | Val: 0.8757 | Train Acc: 0.7109 | Val Acc: 0.5312 | Time: 14.1s
+2025-08-06 15:30:35,902 - INFO - [Epoch 34] Train: 0.6624 | Val: 0.8778 | Train Acc: 0.6719 | Val Acc: 0.5469 | Time: 13.6s
+2025-08-06 15:30:49,896 - INFO - [Epoch 35] Train: 0.6727 | Val: 0.8794 | Train Acc: 0.6875 | Val Acc: 0.5469 | Time: 13.8s
+2025-08-06 15:31:03,984 - INFO - [Epoch 36] Train: 0.6607 | Val: 0.8792 | Train Acc: 0.6953 | Val Acc: 0.5312 | Time: 14.0s
+2025-08-06 15:31:17,871 - INFO - [Epoch 37] Train: 0.6663 | Val: 0.8792 | Train Acc: 0.6875 | Val Acc: 0.5312 | Time: 13.8s
+2025-08-06 15:31:31,850 - INFO - [Epoch 38] Train: 0.6919 | Val: 0.8793 | Train Acc: 0.6797 | Val Acc: 0.5469 | Time: 13.9s
+2025-08-06 15:31:45,589 - INFO - [Epoch 39] Train: 0.6644 | Val: 0.8794 | Train Acc: 0.7266 | Val Acc: 0.5469 | Time: 13.6s
+2025-08-06 15:31:59,708 - INFO - [Epoch 40] Train: 0.6644 | Val: 0.8796 | Train Acc: 0.7109 | Val Acc: 0.5312 | Time: 14.0s
+2025-08-06 15:32:13,644 - INFO - [Epoch 41] Train: 0.6688 | Val: 0.8797 | Train Acc: 0.6953 | Val Acc: 0.5312 | Time: 13.8s
+2025-08-06 15:32:27,605 - INFO - [Epoch 42] Train: 0.6590 | Val: 0.8797 | Train Acc: 0.7109 | Val Acc: 0.5312 | Time: 13.9s
+2025-08-06 15:32:41,674 - INFO - [Epoch 43] Train: 0.6554 | Val: 0.8797 | Train Acc: 0.7031 | Val Acc: 0.5312 | Time: 13.9s
+2025-08-06 15:32:55,661 - INFO - [Epoch 44] Train: 0.6525 | Val: 0.8799 | Train Acc: 0.7188 | Val Acc: 0.5312 | Time: 13.9s
+2025-08-06 15:33:09,563 - INFO - [Epoch 45] Train: 0.6776 | Val: 0.8798 | Train Acc: 0.6797 | Val Acc: 0.5312 | Time: 13.8s
+2025-08-06 15:33:23,369 - INFO - [Epoch 46] Train: 0.6473 | Val: 0.8798 | Train Acc: 0.6875 | Val Acc: 0.5312 | Time: 13.7s
+2025-08-06 15:33:37,511 - INFO - [Epoch 47] Train: 0.6621 | Val: 0.8796 | Train Acc: 0.6875 | Val Acc: 0.5469 | Time: 14.1s
+2025-08-06 15:33:51,714 - INFO - [Epoch 48] Train: 0.6611 | Val: 0.8797 | Train Acc: 0.7031 | Val Acc: 0.5312 | Time: 14.1s
+2025-08-06 15:34:05,480 - INFO - [Epoch 49] Train: 0.6495 | Val: 0.8797 | Train Acc: 0.7109 | Val Acc: 0.5312 | Time: 13.7s
+2025-08-06 15:34:19,555 - INFO - [Epoch 50] Train: 0.6632 | Val: 0.8798 | Train Acc: 0.6875 | Val Acc: 0.5312 | Time: 14.0s
+2025-08-06 15:34:33,571 - INFO - [Epoch 51] Train: 0.6868 | Val: 0.8798 | Train Acc: 0.6953 | Val Acc: 0.5312 | Time: 13.9s
+2025-08-06 15:34:47,470 - INFO - [Epoch 52] Train: 0.6512 | Val: 0.8797 | Train Acc: 0.7031 | Val Acc: 0.5312 | Time: 13.8s
+2025-08-06 15:35:01,585 - INFO - [Epoch 53] Train: 0.6663 | Val: 0.8797 | Train Acc: 0.7109 | Val Acc: 0.5312 | Time: 14.0s
+2025-08-06 15:35:15,712 - INFO - [Epoch 54] Train: 0.6334 | Val: 0.8797 | Train Acc: 0.7188 | Val Acc: 0.5625 | Time: 14.1s
+2025-08-06 15:35:29,586 - INFO - [Epoch 55] Train: 0.6775 | Val: 0.8800 | Train Acc: 0.6797 | Val Acc: 0.5312 | Time: 13.8s
+2025-08-06 15:35:43,575 - INFO - [Epoch 56] Train: 0.6541 | Val: 0.8799 | Train Acc: 0.6953 | Val Acc: 0.5469 | Time: 13.9s
+2025-08-06 15:35:57,506 - INFO - [Epoch 57] Train: 0.6545 | Val: 0.8798 | Train Acc: 0.7109 | Val Acc: 0.5625 | Time: 13.9s
+2025-08-06 15:36:11,333 - INFO - [Epoch 58] Train: 0.6544 | Val: 0.8798 | Train Acc: 0.7188 | Val Acc: 0.5312 | Time: 13.7s
+W0806 15:36:15.791113 1998460 torch/distributed/elastic/agent/server/api.py:719] Received Signals.SIGINT death signal, shutting down workers
+W0806 15:36:15.792820 1998460 torch/distributed/elastic/multiprocessing/api.py:900] Sending process 1998593 closing signal SIGINT
+W0806 15:36:15.793268 1998460 torch/distributed/elastic/multiprocessing/api.py:900] Sending process 1998594 closing signal SIGINT
+[rank0]: Traceback (most recent call last):
+[rank0]:   File "/user/ljones/GNNs-for-JUNO/utils/train_multi_gpu.py", line 434, in <module>
+[rank0]:     main()
+[rank0]:   File "/user/ljones/GNNs-for-JUNO/utils/train_multi_gpu.py", line 374, in main
+[rank0]:     train_loss, train_acc = train_epoch(model, train_loader, loss_fn, compute_acc, optimizer, device, device_type, scaler)
+[rank0]:   File "/user/ljones/GNNs-for-JUNO/utils/train_multi_gpu.py", line 136, in train_epoch
+[rank0]:     scaler.step(optimizer)
+[rank0]:   File "/user/ljones/.gnn_juno/lib64/python3.9/site-packages/torch/amp/grad_scaler.py", line 461, in step
+[rank0]:     retval = self._maybe_opt_step(optimizer, optimizer_state, *args, **kwargs)
+[rank0]:   File "/user/ljones/.gnn_juno/lib64/python3.9/site-packages/torch/amp/grad_scaler.py", line 355, in _maybe_opt_step
+[rank0]:     if not sum(v.item() for v in optimizer_state["found_inf_per_device"].values()):
+[rank0]:   File "/user/ljones/.gnn_juno/lib64/python3.9/site-packages/torch/amp/grad_scaler.py", line 355, in <genexpr>
+[rank0]:     if not sum(v.item() for v in optimizer_state["found_inf_per_device"].values()):
+[rank0]: KeyboardInterrupt
+[rank1]: Traceback (most recent call last):
+[rank1]:   File "/user/ljones/GNNs-for-JUNO/utils/train_multi_gpu.py", line 434, in <module>
+[rank1]:     main()
+[rank1]:   File "/user/ljones/GNNs-for-JUNO/utils/train_multi_gpu.py", line 374, in main
+[rank1]:     train_loss, train_acc = train_epoch(model, train_loader, loss_fn, compute_acc, optimizer, device, device_type, scaler)
+[rank1]:   File "/user/ljones/GNNs-for-JUNO/utils/train_multi_gpu.py", line 136, in train_epoch
+[rank1]:     scaler.step(optimizer)
+[rank1]:   File "/user/ljones/.gnn_juno/lib64/python3.9/site-packages/torch/amp/grad_scaler.py", line 461, in step
+[rank1]:     retval = self._maybe_opt_step(optimizer, optimizer_state, *args, **kwargs)
+[rank1]:   File "/user/ljones/.gnn_juno/lib64/python3.9/site-packages/torch/amp/grad_scaler.py", line 355, in _maybe_opt_step
+[rank1]:     if not sum(v.item() for v in optimizer_state["found_inf_per_device"].values()):
+[rank1]:   File "/user/ljones/.gnn_juno/lib64/python3.9/site-packages/torch/amp/grad_scaler.py", line 355, in <genexpr>
+[rank1]:     if not sum(v.item() for v in optimizer_state["found_inf_per_device"].values()):
+[rank1]: KeyboardInterrupt
+[rank0]:[W806 15:36:16.638109001 ProcessGroupNCCL.cpp:1479] Warning: WARNING: destroy_process_group() was not called before program exit, which can leak resources. For more info, please see https://pytorch.org/docs/stable/distributed.html#shutdown (function operator())
+Traceback (most recent call last):
+  File "/user/ljones/.gnn_juno/bin/torchrun", line 8, in <module>
+    sys.exit(main())
+  File "/user/ljones/.gnn_juno/lib64/python3.9/site-packages/torch/distributed/elastic/multiprocessing/errors/__init__.py", line 355, in wrapper
+    return f(*args, **kwargs)
+  File "/user/ljones/.gnn_juno/lib64/python3.9/site-packages/torch/distributed/run.py", line 892, in main
+    run(args)
+  File "/user/ljones/.gnn_juno/lib64/python3.9/site-packages/torch/distributed/run.py", line 883, in run
+    elastic_launch(
+  File "/user/ljones/.gnn_juno/lib64/python3.9/site-packages/torch/distributed/launcher/api.py", line 139, in __call__
+    return launch_agent(self._config, self._entrypoint, list(args))
+  File "/user/ljones/.gnn_juno/lib64/python3.9/site-packages/torch/distributed/launcher/api.py", line 261, in launch_agent
+    result = agent.run()
+  File "/user/ljones/.gnn_juno/lib64/python3.9/site-packages/torch/distributed/elastic/metrics/api.py", line 138, in wrapper
+    result = f(*args, **kwargs)
+  File "/user/ljones/.gnn_juno/lib64/python3.9/site-packages/torch/distributed/elastic/agent/server/api.py", line 711, in run
+    result = self._invoke_run(role)
+  File "/user/ljones/.gnn_juno/lib64/python3.9/site-packages/torch/distributed/elastic/agent/server/api.py", line 870, in _invoke_run
+    time.sleep(monitor_interval)
+  File "/user/ljones/.gnn_juno/lib64/python3.9/site-packages/torch/distributed/elastic/multiprocessing/api.py", line 84, in _terminate_process_handler
+    raise SignalException(f"Process {os.getpid()} got signal: {sigval}", sigval=sigval)
+torch.distributed.elastic.multiprocessing.api.SignalException: Process 1998460 got signal: 2
+=== Job ended at Wed  6 Aug 15:36:19 BST 2025 ===

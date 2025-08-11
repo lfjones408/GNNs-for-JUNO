@@ -3,7 +3,7 @@ import glob
 import numpy as np
 import pandas as pd
 
-fileList  = ['nu_e', 'nu_mu', 'nc', 'antinu_e', 'antinu_mu']
+fileList  = ['nu_e', 'antinu_e']
 filePaths = '/hepstore/ljones/atm_nu/J24.1.2/FC/'
 summary   = '/log/performance_summary.csv'
 
@@ -26,13 +26,13 @@ for file in fileList:
 
         if h5_path not in training_path:
             num_events += evt
-            if(num_events < 10000):
+            if(num_events < 20000):
                 print(f'    Job -> {job} \n         nEvents -> {evt}')
                 files.append(h5_path+'\n')
             else:
                 continue
 
-txt_file = open("evaluation_files.txt", "w")
+txt_file = open("evaluation_files_nu_e.txt", "w")
 txt_file.writelines(files)
 txt_file.close()
 

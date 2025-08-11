@@ -86,7 +86,7 @@ def plot_predictions(preds, targets, conf_matrix, class_type='3-label', save_pat
     if class_type=='3-label':
         class_names = [r'$\nu_{e}$-like-CC', r'$\nu_{\mu}$-like-CC', 'NC']
     elif class_type=='5-label':
-        class_names = [r'$\bar{\nu}_{e}$-CC', r'\nu_{e}$-CC', r'$\bar{\nu}_{\mu}$-CC', r'$\nu_{\mu}$-CC', 'NC']
+        class_names = [r'$\bar{\nu}_{e}$-CC', r'$\nu_{e}$-CC', r'$\bar{\nu}_{\mu}$-CC', r'$\nu_{\mu}$-CC', 'NC']
     else:
         logger.info("Give a valid classification type")
 
@@ -127,7 +127,7 @@ def main():
     with open(args.config, 'r') as f:
         cfg = yaml.safe_load(f)
 
-    with open('evaluation_files.txt', 'r') as path:
+    with open('training_files.txt', 'r') as path:
         h5_path = [line.strip() for line in path]
 
     graph = torch.load(cfg['graph'])
@@ -150,10 +150,17 @@ def main():
     model = EGNNFlavourClassifier(
         in_features=2,
         hidden_dim=hidden_dim,
-        latent_dim=latent_dim
+        latent_dim=latent_dim,
+        num_classes=5 if class_type=='5-label' else 3 
     ).to(device)
 
-    model.load_state_dict(torch.load(model_path, map_location=device))
+    state_dict = torch.load(model_path, map_location=device)
+
+    if any(k.startswith("module.") for k in state_dict.keys()):
+        state_dict = {k.replace("module.", ""): v for k, v in state_dict.items()}
+
+    model.load_state_dict(state_dict)
+    
     logger.info(f"Loaded model from {model_path}")
 
     eval_loader = get_eval_loader(h5_path, edge_index, stats, pos,batch_size=batch_size, limit=limit, target=target, class_type=class_type)

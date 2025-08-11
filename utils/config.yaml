@@ -1,17 +1,17 @@
-input: training_files.txt
+input: training_files_nu_e.txt
 output: output
 graph: utils/pmt_graph.pt
 stats: utils/norm_stats.npz
 
 training:
   epochs: 100
-  batch_size: 10
+  batch_size: 32
   lr: 0.001
   latent_dim: 64
   hidden_dim: 128
   patience: 10
   limit: 
   num_workers: 6
-  loss: classification
-  class_type: 5-label
-  target: flavour
+  loss: regression
+  class_type: 
+  target: energy

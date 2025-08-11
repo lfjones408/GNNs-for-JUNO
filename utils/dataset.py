@@ -426,55 +426,56 @@ class EGNNMultiJUNODataset(Dataset):
         features = np.stack((npe, fht), axis=1)
 
         x = torch.tensor(features, dtype=torch.float32)
-        x = torch.cat([x, torch.zeros(1, x.size(1))], dim=0)
+        # x = torch.cat([x, torch.zeros(1, x.size(1))], dim=0)
 
         pos = self.pos.float().clone()
-        pos = torch.cat([pos, torch.zeros(1, 3)], dim=0)
+        # pos = torch.cat([pos, torch.zeros(1, 3)], dim=0)
 
-        global_idx = x.size(0) -1 
-        pmt_indices = torch.randperm(global_idx)[:1000]
-        global_edges = torch.stack([
-            torch.cat([pmt_indices, torch.full((1000,), global_idx)]),
-            torch.cat([torch.full((1000,), global_idx), pmt_indices])
-        ], dim=0)
+        # global_idx = x.size(0) -1 
+        # pmt_indices = torch.randperm(global_idx)[:1000]
+        # global_edges = torch.stack([
+        #     torch.cat([pmt_indices, torch.full((1000,), global_idx)]),
+        #     torch.cat([torch.full((1000,), global_idx), pmt_indices])
+        # ], dim=0)
 
         edge_index = self.edge_index
-        edge_index = torch.cat([edge_index, global_edges], dim=1)
+        # edge_index = torch.cat([edge_index, global_edges], dim=1)
 
         label_tensor = torch.tensor(label[1:4], dtype=torch.float32)
+
+        matched = False  # add this to avoid undefined variable
+        
+        if self.class_type == '3-label':
+            flavour_map = {
+                "antinu_e": 0, "nu_e": 0,
+                "antinu_mu": 1, "nu_mu": 1,
+                "nc": 2
+            }
+            for flav, lab in flavour_map.items():
+                if flav in self.file_paths[file_idx]:
+                    label = torch.tensor(lab)
+                    matched = True
+                    break
+            if not matched:
+                raise ValueError(f"No known flavour found in filename: {self.file_paths[file_idx]}")
+        else:
+            flavour_map = {
+                "antinu_e": 0, "nu_e": 1,
+                "antinu_mu": 2, "nu_mu": 3,
+                "nc": 4
+            }
+            for flav, lab in flavour_map.items():
+                if flav in self.file_paths[file_idx]:
+                    label = torch.tensor(lab)
+                    matched = True
+                    break
+            if not matched:
+                raise ValueError(f"No known flavour found in filename: {self.file_paths[file_idx]}")
 
         if self.target == 'direction':
             y = label_tensor[0]
         elif self.target == 'flavour':
-            matched = False  # add this to avoid undefined variable
-            if self.class_type == '3-label':
-                flavour_map = {
-                    "antinu_e": 0, "nu_e": 0,
-                    "antinu_mu": 1, "nu_mu": 1,
-                    "nc": 2
-                }
-                for flav, lab in flavour_map.items():
-                    if flav in self.file_paths[file_idx]:
-                        y = torch.tensor(lab)
-                        matched = True
-                        break
-                if not matched:
-                    raise ValueError(f"No known flavour found in filename: {self.file_paths[file_idx]}")
-            elif self.class_type == '5-label':
-                flavour_map = {
-                    "antinu_e": 0, "nu_e": 1,
-                    "antinu_mu": 2, "nu_mu": 3,
-                    "nc": 4
-                }
-                for flav, lab in flavour_map.items():
-                    if flav in self.file_paths[file_idx]:
-                        y = torch.tensor(lab)
-                        matched = True
-                        break
-                if not matched:
-                    raise ValueError(f"No known flavour found in filename: {self.file_paths[file_idx]}")
-            else:
-                raise ValueError('Invalid classification type')
+            y = label
         elif self.target == 'energy':
             y = label_tensor[2]
         elif self.target is None:
@@ -482,7 +483,7 @@ class EGNNMultiJUNODataset(Dataset):
         else:
             raise ValueError('Invalid target.')
 
-        return Data(x=x, pos=pos, edge_index=edge_index, y=y, energy=label_tensor[2], direction=label_tensor[0], flavour=label_tensor[1])
+        return Data(x=x, pos=pos, edge_index=edge_index, y=y, energy=label_tensor[2], direction=label_tensor[0], flavour=label)
 
     def __del__(self):
         for f in self.file_handles:

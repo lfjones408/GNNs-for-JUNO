@@ -150,8 +150,8 @@ def log_summary_to_csv(cfg, avg_time, train_size, test_size, peak_gpu_mem, peak_
         ])
 
 def plot_input_data(train_loader, test_loader, save_path='plots/target_hist.png'):
-    train_e, train_phi, train_flav = []
-    test_e, test_phi, test_flav = []
+    train_e, train_phi, train_flav = [], [], []
+    test_e, test_phi, test_flav = [], [], []
     flavour_map = {
                     "antinu_e": 0, "nu_e": 1,
                     "antinu_mu": 2, "nu_mu": 3,
@@ -175,7 +175,7 @@ def plot_input_data(train_loader, test_loader, save_path='plots/target_hist.png'
     test_e = np.array(test_e).flatten()
     test_phi = np.array(test_phi).flatten()
     test_flav = np.array(test_flav).flatten()
- 
+
     for flavour, label in flavour_map.items():
         globals()[f"mask_{flavour}_training"] = train_flav == label
         globals()[f"mask_{flavour}_test"] = test_flav == label
@@ -184,19 +184,24 @@ def plot_input_data(train_loader, test_loader, save_path='plots/target_hist.png'
     ax_train_e   = fig.add_subplot(211)
     ax_test_e    = fig.add_subplot(212)
 
-    for flavour in flavour_map.keys():
-        mask_train = 'mask_'+flavour+'_training'
-        ax_train_e.hist(train_e[mask_train], bins=20, histtype='step', linewidth=2.5, label=flavour)
+    latex_labels = [r"$\bar{\nu}_e$", r"$\nu_e$", r"$\bar{\nu}_{\mu}$", r"$\nu_{\mu}$", r"$nc$"]
+
+    bin_edges = np.linspace(0, 20, 21)
+
+    for flavour, i in flavour_map.items():
+        mask_train = globals()['mask_'+flavour+'_training']
+        ax_train_e.hist(train_e[mask_train], bins=bin_edges, histtype='step', linewidth=2.5, label=latex_labels[i])
     ax_train_e.set_xlabel('Energy (GeV)')
     ax_train_e.set_ylabel('Freq')
-    
-    for flavour in flavour_map.keys():
-        mask_test = 'mask_'+flavour+'_training'
-        ax_test_e.hist(train_e[mask_test], bins=20, histtype='step', linewidth=2.5, label=flavour)
+    ax_train_e.legend()
+
+    for flavour, i in flavour_map.items():
+        mask_test = globals()['mask_'+flavour+'_test']
+        ax_test_e.hist(test_e[mask_test], bins=bin_edges, histtype='step', linewidth=2.5, label=latex_labels[i])
     ax_test_e.set_xlabel('Energy (GeV)')
     ax_test_e.set_ylabel('Freq')
+    ax_test_e.legend()
 
-    plt.legend()
     plt.savefig(save_path)
 
 def main():
@@ -264,6 +269,7 @@ def main():
 
     for epoch in range(epochs):
         start = time.time()
+        # torch.cuda.empty_cache()
         train_loss = train_epoch(model, train_loader, loss_fn, optimizer, device, device_type, scaler, max_grad_norm=1.0)
         val_loss = validate(model, val_loader, loss_fn, device, device_type)
         scheduler.step(val_loss)

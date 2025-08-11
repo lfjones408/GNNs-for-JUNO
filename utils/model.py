@@ -14,9 +14,21 @@ class DeepGATEncoder(nn.Module):
         self.bn1 = nn.BatchNorm1d(hidden_dim * heads)
         self.pool1 = TopKPooling(hidden_dim * heads, ratio=0.5)
 
-        self.gat2 = GATv2Conv(hidden_dim * heads, hidden_dim, heads=2, concat=True)
-        self.bn2 = nn.BatchNorm1d(hidden_dim * 2)
-        self.pool2 = TopKPooling(hidden_dim * 2, ratio=0.2)
+        self.gat2 = GATv2Conv(hidden_dim * heads, hidden_dim, heads=heads, concat=True)
+        self.bn2 = nn.BatchNorm1d(hidden_dim * heads)
+
+        self.gat3 = GATv2Conv(hidden_dim * heads, hidden_dim, heads=heads, concat=True)
+        self.bn3 = nn.BatchNorm1d(hidden_dim * heads)
+
+        self.gat4 = GATv2Conv(hidden_dim * heads, hidden_dim, heads=heads, concat=True)
+        self.bn4 = nn.BatchNorm1d(hidden_dim * heads)
+
+        self.gat5 = GATv2Conv(hidden_dim * heads, hidden_dim, heads=2, concat=True)
+        self.bn5 = nn.BatchNorm1d(hidden_dim * 2)
+        self.pool5 = TopKPooling(hidden_dim * 2, ratio=0.2)
+
+        self.gat6 = GATv2Conv(hidden_dim * 2, hidden_dim, heads=2, concat=True)
+        self.bn6 = nn.BatchNorm1d(hidden_dim * 2)
 
         self.lin1 = nn.Linear(hidden_dim * 2, hidden_dim)
         self.lin2 = nn.Linear(hidden_dim, latent_dim)
@@ -31,8 +43,24 @@ class DeepGATEncoder(nn.Module):
         x = self.gat2(x, edge_index)
         x = self.bn2(x)
         x = F.elu(x)
-        x = F.dropout(x, p=0.2, training=self.training)
-        x, edge_index, _, batch, _, _ = self.pool2(x, edge_index, None, batch)
+
+        x = self.gat3(x, edge_index)
+        x = self.bn3(x)
+        x = F.elu(x)
+
+        x = self.gat4(x, edge_index)
+        x = self.bn4(x)
+        x = F.elu(x)
+
+        x = self.gat5(x, edge_index)
+        x = self.bn5(x)
+        x = F.elu(x)
+        x = F.dropout(x, p=0.1, training=self.training)
+        x, edge_index, _, batch, _, _ = self.pool5(x, edge_index, None, batch)
+
+        x = self.gat6(x, edge_index)
+        x = self.bn6(x)
+        x = F.elu(x)
 
         x = global_mean_pool(x, batch)
         x = F.relu(self.lin1(x))
@@ -65,9 +93,9 @@ class GATAutoencoder(nn.Module):
         return z
 
 class GATClassifier(nn.Module):
-    def __init__(self, input_dim=2, hidden_dim=64, latent_dim=32, num_classes=2, heads=4, dropout=0.2):
+    def __init__(self, in_features=2, hidden_dim=64, latent_dim=32, num_classes=2, heads=4, dropout=0.2):
         super().__init__()
-        self.encoder = DeepGATEncoder(input_dim, hidden_dim, latent_dim, heads)
+        self.encoder = DeepGATEncoder(in_features, hidden_dim, latent_dim, heads)
         self.classifier_head = nn.Sequential(
             nn.Linear(latent_dim, hidden_dim),
             nn.ReLU(),
@@ -80,9 +108,9 @@ class GATClassifier(nn.Module):
         return self.classifier_head(z)
 
 class GATRegressor(nn.Module):
-    def __init__(self, input_dim=2, hidden_dim=64, latent_dim=32, output_dim=1, heads=4, dropout=0.2):
+    def __init__(self, in_features=2, hidden_dim=64, latent_dim=32, output_dim=1, heads=4, dropout=0.2):
         super().__init__()
-        self.encoder = DeepGATEncoder(input_dim, hidden_dim, latent_dim, heads)
+        self.encoder = DeepGATEncoder(in_features, hidden_dim, latent_dim, heads)
         self.regressor_head = nn.Sequential(
             nn.Linear(latent_dim, hidden_dim),
             nn.ReLU(),
@@ -176,7 +204,8 @@ class EGNNLayerWithAttention(nn.Module):
             nn.ReLU()
         )
         
-        self.norm = nn.BatchNorm1d(out_features)
+        # self.norm = nn.BatchNorm1d(out_features)
+        self.norm = nn.LayerNorm(out_features) # <- might fix nans
         
         if in_features != out_features:
             self.res_connection = nn.Linear(in_features, out_features)
@@ -217,12 +246,12 @@ class EGNNLayerWithAttention(nn.Module):
 class EGNNEncoder(nn.Module):
     def __init__(self, in_features, hidden_dim, latent_dim):
         super().__init__()
-        self.egnn1 = EGNNLayerWithAttention(in_features, hidden_dim)
-        self.egnn2 = EGNNLayerWithAttention(hidden_dim, hidden_dim)
-        self.egnn3 = EGNNLayerWithAttention(hidden_dim, hidden_dim)
-        self.egnn4 = EGNNLayerWithAttention(hidden_dim, hidden_dim)
-        self.egnn5 = EGNNLayerWithAttention(hidden_dim, hidden_dim)
-        self.egnn6 = EGNNLayerWithAttention(hidden_dim, hidden_dim)
+        self.egnn1 = EGNNLayer(in_features, hidden_dim)
+        self.egnn2 = EGNNLayer(hidden_dim, hidden_dim)
+        self.egnn3 = EGNNLayer(hidden_dim, hidden_dim)
+        self.egnn4 = EGNNLayer(hidden_dim, hidden_dim)
+        self.egnn5 = EGNNLayer(hidden_dim, hidden_dim)
+        self.egnn6 = EGNNLayer(hidden_dim, hidden_dim)
 
 
         self.lin = nn.Sequential(
@@ -240,19 +269,21 @@ class EGNNEncoder(nn.Module):
         x, pos = self.egnn5(x, pos, edge_index)
         x, pos = self.egnn6(x, pos, edge_index)
 
-        num_nodes = batch.size(0)
-        num_graphs = batch.max().item() +1
-        global_node_indices = torch.arange(num_graphs, device=batch.device) + (num_nodes - num_graphs)
-        mask = torch.ones(num_nodes, dtype=torch.bool, device=batch.device)
-        mask[global_node_indices] = False
-        x_masked = x[mask]
-        batch_masked = batch[mask]
+        # num_nodes = batch.size(0)
+        # num_graphs = batch.max().item() +1
+        # global_node_indices = torch.arange(num_graphs, device=batch.device) + (num_nodes - num_graphs)
+        # mask = torch.ones(num_nodes, dtype=torch.bool, device=batch.device)
+        # mask[global_node_indices] = False
+        # x_masked = x[mask]
+        # batch_masked = batch[mask]
 
-        pooled = torch.zeros(num_graphs, x.size(1), device=x.device, dtype=x.dtype)
-        pooled.index_add_(0, batch_masked, x_masked)
+        # pooled = torch.zeros(num_graphs, x.size(1), device=x.device, dtype=x.dtype)
+        # pooled.index_add_(0, batch_masked, x_masked)
 
-        counts = torch.bincount(batch_masked, minlength=num_graphs).float().unsqueeze(1)
-        x_mean = pooled / (counts + 1e-8)
+        # counts = torch.bincount(batch_masked, minlength=num_graphs).float().unsqueeze(1)
+        # x_mean = pooled / (counts + 1e-8)
+
+        x_mean = global_mean_pool(x, batch)
 
         return self.lin(x_mean)
 
