@@ -3,13 +3,13 @@ import glob
 import numpy as np
 import pandas as pd
 
-fileList  = ['nu_e', 'antinu_e']
+fileList  = ['nu_mu', 'antinu_mu']
 filePaths = '/hepstore/ljones/atm_nu/J24.1.2/FC/'
 summary   = '/log/performance_summary.csv'
 
 files = []
 
-with open('training_files.txt', 'r') as path:
+with open('training_files_nu_e.txt', 'r') as path:
         training_path = [line.strip() for line in path]
 
 for file in fileList:

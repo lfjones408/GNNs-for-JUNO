@@ -12,7 +12,7 @@ source /user/ljones/.gnn_juno/bin/activate
 export NETWORKX_NO_BACKENDS=1
 export PYTORCH_CUDA_ALLOC_CONF=expandable_segments:True
 
-export CUDA_VISIBLE_DEVICES=5
+export CUDA_VISIBLE_DEVICES=3
 
 cd /user/ljones/GNNs-for-JUNO
 

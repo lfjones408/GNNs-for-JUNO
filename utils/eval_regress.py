@@ -171,7 +171,7 @@ def main():
     graph = torch.load(cfg['graph'])
     stats = load_stats(cfg['stats'])
     output_dir = cfg['output']
-    model_path = os.path.join(output_dir, "snapshots/epoch_91_snapshot.pth")
+    model_path = os.path.join(output_dir, "snapshots/regress/nu_e_like/energy/epoch_53_snapshot.pth")
 
     batch_size = cfg['training']['batch_size']
     latent_dim = cfg['training']['latent_dim']
@@ -208,7 +208,7 @@ def main():
 
     logger.info(f"Evaluation MSE: {mse:.4f}, R2: {r2:.4f}")
     plot_predictions(preds, targets, plot_dir=os.path.join(output_dir, "plots"))
-    plot_predictions_by_energy_bin(preds, targets, energy, bins=energy_bins, units='GeV', plot_dir=os.path.join(output_dir, "plots"))
+    plot_predictions_by_energy_bin(preds, targets, energy, bins=energy_bins, units='GeV', plot_dir=os.path.join(output_dir, "plots/nu_e/energy"))
 
 if __name__ == "__main__":
     main()

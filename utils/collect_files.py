@@ -2,7 +2,7 @@ import os
 import numpy as np
 import pandas as pd
 
-fileList  = ['nu_e', 'antinu_e',]
+fileList  = ['nu_mu', 'antinu_mu',]
 filePaths = '/hepstore/ljones/atm_nu/J24.1.2/FC/'
 summary   = '/log/performance_summary.csv'
 
@@ -26,7 +26,7 @@ for file in fileList:
         else:
             continue
 
-txt_file = open("training_files_nu_e.txt", "w")
+txt_file = open("training_files_nu_mu.txt", "w")
 txt_file.writelines(files)
 txt_file.close()
 

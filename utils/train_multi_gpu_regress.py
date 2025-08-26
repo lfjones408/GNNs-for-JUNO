@@ -11,7 +11,7 @@ import numpy as np
 from torch.utils.data import random_split
 from torch_geometric.loader import DataLoader
 import torch.nn as nn
-from torch.optim import Adam
+from torch.optim import Adam, AdamW
 from torch.optim.lr_scheduler import ReduceLROnPlateau
 from torchmetrics import Accuracy
 import matplotlib.pyplot as plt
@@ -19,12 +19,14 @@ from tqdm import tqdm
 import logging
 import random
 from torch.amp import autocast, GradScaler
+import torch.nn.functional as F
 
 from model import EGNNEnergyRegressor, EGNNFlavourClassifier, GATClassifier
 from dataset import EGNNJUNODataset, EGNNMultiJUNODataset
 from loss import Losses
 
 # --- DDP ---
+import torch.distributed as dist
 import torch.multiprocessing as mp
 from torch.distributed import get_rank
 from torch.utils.data.distributed import DistributedSampler
@@ -103,28 +105,74 @@ def get_dataloaders(h5_path, edge_index, pos, stats, batch_size, val_split=0.2, 
         num_replicas=int(os.environ["WORLD_SIZE"]),
         rank=int(os.environ["RANK"]),
         shuffle=True, 
+        drop_last=True,  
+        seed=42
+    )
+    val_sampler = DistributedSampler(
+        val_dataset,
+        num_replicas=int(os.environ["WORLD_SIZE"]),
+        rank=int(os.environ["RANK"]),
+        shuffle=False,
+        drop_last=False,
         seed=42
     )
 
     train_loader = DataLoader(train_dataset, batch_size=batch_size, shuffle=False, sampler=train_sampler, num_workers=num_workers, pin_memory=True, drop_last=True)
-    val_loader = DataLoader(val_dataset, batch_size=batch_size, shuffle=False, num_workers=num_workers, pin_memory=True, drop_last=True)
+    val_loader = DataLoader(val_dataset, batch_size=batch_size, shuffle=False, sampler=val_sampler, num_workers=num_workers, pin_memory=True, drop_last=True)
 
     return train_loader, val_loader
 
-def train_epoch(model, loader, loss_fn, optimizer, device, device_type, scaler, max_grad_norm=1.0):
+def vertex_loss_huber(vhat, vtrue, delta=0.5):
+    # vhat: [B,3] tensor (model output)
+    # vtrue: could be list/np/tensor -> make it a tensor matching vhat
+    if not isinstance(vtrue, torch.Tensor):
+        vtrue = torch.as_tensor(vtrue, dtype=vhat.dtype, device=vhat.device)
+    else:
+        vtrue = vtrue.to(dtype=vhat.dtype, device=vhat.device)
+
+    if vtrue.dim() == 1:               # e.g. [3] -> [1,3]
+        vtrue = vtrue.unsqueeze(0)
+    return torch.nn.functional.huber_loss(vhat, vtrue, delta=delta)
+
+def energy_loss(preds, batch):
+    # allow model to optionally return (preds, …)
+    if isinstance(preds, (tuple, list)):
+        preds = preds[0]
+
+    # get ground truth from the batch
+    if hasattr(batch, "energy"):
+        true_E = batch.energy
+    elif hasattr(batch, "y"):
+        true_E = batch.y
+    else:
+        raise AttributeError("Batch has no 'energy' or 'y' field for ground-truth energy.")
+
+    # ensure shapes/devices/dtypes line up
+    pred_E = preds.view_as(true_E).to(dtype=true_E.dtype)
+    true_E = true_E.to(device=preds.device, dtype=preds.dtype)
+
+    # print(pred_E)
+    # print(true_E)
+
+    # relative MSE (change to your preferred loss if needed)
+    rel = (pred_E - true_E) / true_E.clamp_min(1e-3)
+    return (rel ** 2).mean()
+
+def train_epoch(model, loader, loss_fn, optimizer, device, device_type, scaler,
+                max_grad_norm=1.0):
     model.train()
-    total_loss = 0
+    total_loss = 0.0
 
     for batch in loader:
-        optimizer.zero_grad()
+        optimizer.zero_grad(set_to_none=True)
         batch = batch.to(device)
 
         with autocast(device_type=device_type):
-            preds = model(batch.x, 
-                          batch.pos, 
-                          batch.edge_index, 
-                          batch.batch)
-            loss = loss_fn(preds, batch)
+            # (mu, log_var) = model(batch.x, batch.pos, batch.vertex, batch.raw_npe, batch.raw_fht, batch.edge_index, batch.batch)
+            # loss = loss_fn((mu, log_var), batch)
+            pred = model(batch.x, batch.pos, batch.edge_index, batch.batch)
+            pred = pred.squeeze(-1)
+            loss = loss_fn(pred, batch)
 
         scaler.scale(loss).backward()
         scaler.unscale_(optimizer)
@@ -134,25 +182,26 @@ def train_epoch(model, loader, loss_fn, optimizer, device, device_type, scaler, 
 
         total_loss += loss.item()
 
-    return total_loss / len(loader)
+    n = len(loader)
+    return total_loss / n
 
 def validate(model, loader, loss_fn, device, device_type):
     model.eval()
-    total_loss = 0
-
+    tot_loss, meds, rmses = 0.0, [], []
     with torch.no_grad():
         for batch in loader:
             batch = batch.to(device)
             with autocast(device_type=device_type):
-                preds = model(batch.x, 
-                              batch.pos, 
-                              batch.edge_index,
-                              batch.batch)
-                loss = loss_fn(preds, batch)
+                # (mu, log_var) = model(batch.x, batch.pos, batch.vertex, batch.raw_npe, batch.raw_fht, batch.edge_index, batch.batch)
+                # loss  = loss_fn((mu, log_var), batch)
+                pred = model(batch.x, batch.pos, batch.edge_index, batch.batch)
+                pred = pred.squeeze(-1)
+                loss = loss_fn(pred, batch)
 
-            total_loss += loss.item()
-  
-    return total_loss / len(loader)
+            tot_loss += loss.item()
+            med, rmse = relerr_metrics(pred.detach(), batch.energy.detach())
+            meds.append(med); rmses.append(rmse)
+    return tot_loss/len(loader), float(np.mean(meds)), float(np.mean(rmses))
 
 def plot_losses(train_losses, val_losses, save_path="plots/loss_curve.png"):
     os.makedirs(os.path.dirname(save_path), exist_ok=True)
@@ -250,6 +299,30 @@ def plot_input_data(train_loader, test_loader, save_path='plots/target_hist.png'
     plt.savefig(save_path)
     plt.close()
 
+def relerr_metrics(preds, target, eps=1e-6):
+    r = (preds - target) / (target + eps)
+    r_abs = r.abs()
+    med = torch.median(r_abs).item()
+    rmse = torch.sqrt(torch.mean(r**2)).item()
+    return med, rmse
+
+def rel_huber(pred_E: torch.Tensor, true_E: torch.Tensor, eps: float = 1e-3, delta: float = 1):
+    """
+    Relative Huber on (pred - true)/true.
+    pred_E, true_E: shape (B,) or (B,1)
+    """
+    if true_E.dim() > 1:
+        true_E = true_E.squeeze(-1)
+    if pred_E.dim() > 1:
+        pred_E = pred_E.squeeze(-1)
+
+    rel = (pred_E - true_E) / true_E.clamp_min(eps)     # (B,)
+    abs_rel = rel.abs()
+    quad = torch.clamp(delta - abs_rel, min=0.0)        # (B,)
+    # Huber: 0.5*(x^2) for |x|<δ, else δ*(|x| - 0.5δ)
+    loss = 0.5 * (rel**2) * (abs_rel <= delta) + (delta * (abs_rel - 0.5 * delta)) * (abs_rel > delta)
+    return loss.mean()
+
 def main():
     ddp_setup()
     local_rank = int(os.environ["LOCAL_RANK"])
@@ -284,6 +357,7 @@ def main():
     target = cfg['training']['target']
     output_dir = cfg['output']
     os.makedirs(output_dir, exist_ok=True)
+    pool_levels = torch.load("utils/pmt_pooled_graph_multilevel.pt", map_location="cpu")
 
     logger.info(f"[Device] {device} | Total GPU Memory: {torch.cuda.get_device_properties(device).total_memory / (1024 ** 2):.2f} MB | Memory Allocated {torch.cuda.memory_allocated(device) / (1024 ** 2)} MB")
 
@@ -297,7 +371,8 @@ def main():
     raw_model = EGNNEnergyRegressor(
         in_features=2,
         hidden_dim=hidden_dim,
-        latent_dim=latent_dim,
+        latent_dim=latent_dim
+        # pooled_levels=pool_levels
     ).to(device)
 
     # param_count = sum(p.numel() for p in raw_model.parameters())
@@ -311,8 +386,38 @@ def main():
     #     logger.info(f"  {name:40} | shape: {tuple(param.shape)} | requires_grad: {param.requires_grad} | numel: {param.numel()}")
 
     torch.distributed.barrier()
-    model = DDP(raw_model, device_ids=[local_rank], output_device=local_rank)
+    model = DDP(raw_model, device_ids=[local_rank], output_device=local_rank) #, find_unused_parameters=True)
     logger.info("[Model] Wrapped in DDP")
+    
+    # # If using DDP, unwrap to the real module
+    # core = model.module if hasattr(model, "module") else model
+
+    # # Collect distinct parameter lists
+    # token_params = list(core.encoder.token_layer.parameters())
+    # token_ids    = {id(p) for p in token_params}
+
+    # # All encoder params EXCEPT token_layer
+    # enc_params = [p for p in core.encoder.parameters() if id(p) not in token_ids]
+
+    # head_params = list(core.head.parameters())
+
+    # # (Optional) sanity checks
+    # assert not any(id(p) in token_ids for p in enc_params), "Overlap enc/token"
+    # assert len({id(p) for p in enc_params}.intersection({id(p) for p in head_params})) == 0, "Overlap enc/head"
+    # assert len({id(p) for p in token_params}.intersection({id(p) for p in head_params})) == 0, "Overlap token/head"
+
+    # # Different learning rates per group
+    # lr_backbone = 1e-3
+    # lr_token    = 3e-3
+    # lr_head     = 3e-3
+
+    # param_groups = [
+    #     {"params": enc_params,   "lr": lr_backbone},
+    #     {"params": token_params, "lr": lr_token},
+    #     {"params": head_params,  "lr": lr_head},
+    # ]
+
+    # optimizer = AdamW(param_groups, weight_decay=1e-4)
     optimizer = Adam(model.parameters(), lr=lr)
     scheduler = ReduceLROnPlateau(optimizer, mode='min', patience=patience // 2)
     scaler = GradScaler(device=device_type)
@@ -333,17 +438,22 @@ def main():
     for epoch in range(epochs):
         start = time.time()
         train_loader.sampler.set_epoch(epoch)
-        train_loss = train_epoch(model, train_loader, loss_fn, optimizer, device, device_type, scaler)
-        val_loss = validate(model, val_loader, loss_fn, device, device_type)      
-        scheduler.step(val_loss)
+        # if epoch > 10:
+        #     loss_fn = Losses(loss_type='huber', huber_delta=1.0)
+        train_total = train_epoch(model, train_loader, loss_fn, optimizer, device, device_type, scaler)
+        val_total, val_med, val_rmse = validate(model, val_loader, loss_fn, device, device_type)    
+        scheduler.step(val_total)
 
-        train_losses.append(train_loss)
-        val_losses.append(val_loss)
+        train_losses.append(train_total)
+        val_losses.append(val_total)
 
         epoch_time = time.time()-start
 
         if get_rank() == 0:
-            logger.info(f"[Epoch {epoch+1}] Train: {train_loss:.4f} | Val: {val_loss:.4f} | Time: {epoch_time:.1f}s")
+            logger.info(f"[Epoch {epoch + 1}] "
+            f"Train: {train_total:.4f} | "
+            f"Val: loss {val_total:.4f} | med|ΔE|/E {val_med:.4f} | RMSE(ΔE/E) {val_rmse:.4f} | " 
+            f"Time = {epoch_time:.1f}s")
         
         time_log.append(epoch_time)
 
@@ -354,10 +464,10 @@ def main():
           'optimizer_state_dict': optimizer.state_dict(),
           'train_losses': train_losses,
           'test_losses': val_losses},
-          f'{output_dir}/snapshots/epoch_{epoch}_snapshot.pth')
+          f'{output_dir}/snapshots/regress/nu_mu_like/energy/epoch_{epoch}_snapshot.pth')
 
-        if val_loss < best_val_loss:
-            best_val_loss = val_loss
+        if val_total < best_val_loss:
+            best_val_loss = val_total
             counter = 0
             if get_rank() == 0:
                 torch.save(model.state_dict(), os.path.join(output_dir, "egnn.pt"))
@@ -382,9 +492,10 @@ def main():
         logger.info(f"[Post] Plotting Losses")
         plot_losses(train_losses, val_losses, save_path=os.path.join(output_dir, "loss_curve_egnn.png"))
 
-    torch.distributed.barrier()
-
-    destroy_process_group()
+    print(f"[rank {dist.get_rank()}] reached postprocessing barrier")
+    dist.barrier()
+    print(f"[rank {dist.get_rank()}] tearing down DDP")
+    dist.destroy_process_group()
 
 if __name__ == "__main__":
     main()

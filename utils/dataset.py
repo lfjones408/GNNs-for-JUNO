@@ -421,6 +421,9 @@ class EGNNMultiJUNODataset(Dataset):
             fht = f['fht'][local_idx]
             label = f['labels'][local_idx]
 
+        raw_fht = torch.from_numpy(np.asarray(fht, dtype=np.float32)).view(-1, 1)
+        raw_npe = torch.from_numpy(np.asarray(npe, dtype=np.float32)).view(-1, 1)
+
         npe = (npe - self.npe_mean) / self.npe_std
         fht = (fht - self.fht_mean) / self.fht_std
         features = np.stack((npe, fht), axis=1)
@@ -440,8 +443,8 @@ class EGNNMultiJUNODataset(Dataset):
 
         edge_index = self.edge_index
         # edge_index = torch.cat([edge_index, global_edges], dim=1)
-
         label_tensor = torch.tensor(label[1:4], dtype=torch.float32)
+        vtx          = torch.tensor(np.array([label[7:10]*1e-3]), dtype=torch.float32)
 
         matched = False  # add this to avoid undefined variable
         
@@ -483,7 +486,7 @@ class EGNNMultiJUNODataset(Dataset):
         else:
             raise ValueError('Invalid target.')
 
-        return Data(x=x, pos=pos, edge_index=edge_index, y=y, energy=label_tensor[2], direction=label_tensor[0], flavour=label)
+        return Data(x=x, pos=pos, edge_index=edge_index, y=y, energy=label_tensor[2], direction=label_tensor[0], raw_npe=raw_npe, raw_fht=raw_fht, flavour=label, vertex=vtx)
 
     def __del__(self):
         for f in self.file_handles:

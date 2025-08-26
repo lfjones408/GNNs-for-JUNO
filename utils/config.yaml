@@ -5,12 +5,12 @@ stats: utils/norm_stats.npz
 
 training:
   epochs: 100
-  batch_size: 32
+  batch_size: 16
   lr: 0.001
-  latent_dim: 64
+  latent_dim: 128
   hidden_dim: 128
   patience: 10
-  limit: 
+  limit:
   num_workers: 6
   loss: regression
   class_type: 
