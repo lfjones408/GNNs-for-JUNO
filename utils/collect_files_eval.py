@@ -3,7 +3,7 @@ import glob
 import numpy as np
 import pandas as pd
 
-fileList  = ['nu_mu', 'antinu_mu']
+fileList  = ['nu_e', 'antinu_e']
 filePaths = '/hepstore/ljones/atm_nu/J24.1.2/FC/'
 summary   = '/log/performance_summary.csv'
 

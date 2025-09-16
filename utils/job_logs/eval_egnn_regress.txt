@@ -1,11 +1,60 @@
-=== Job started at Tue 12 Aug 15:14:49 BST 2025
+=== Job started at Wed 27 Aug 16:51:13 BST 2025
 === Running on host: alpha.ph.liv.ac.uk ===
 === CUDA_VISIBLE_DEVICES: 3 ===
 /user/ljones/.gnn_juno/lib64/python3.9/site-packages/networkx/utils/backends.py:135: RuntimeWarning: networkx backend defined more than once: nx-loopback
   backends.update(_get_backends("networkx.backends"))
-2025-08-12 15:14:54,365 - INFO - [Device] cuda
-2025-08-12 15:14:55,378 - INFO - Loaded model from output/snapshots/regress/nu_e_like/energy/epoch_53_snapshot.pth
-2025-08-12 15:36:03,637 - INFO - Evaluation MSE: 4.7438, R2: 0.8373
-/user/ljones/GNNs-for-JUNO/utils/eval_regress.py:141: RuntimeWarning: More than 20 figures have been opened. Figures created through the pyplot interface (`matplotlib.pyplot.figure`) are retained until explicitly closed and may consume too much memory. (To control this warning, see the rcParam `figure.max_open_warning`). Consider using `matplotlib.pyplot.close()`.
-  plt.figure(figsize=(16, 10))
-=== Job ended at Tue 12 Aug 15:36:10 BST 2025
+2025-08-27 16:51:18,106 - INFO - [Device] cuda
+2025-08-27 16:51:18,460 - INFO - Loaded model from output/snapshots/regress/nu_e_like/energy/attention/epoch_5_snapshot.pth
+Exception in thread Thread-1:
+Traceback (most recent call last):
+  File "/usr/lib64/python3.9/threading.py", line 980, in _bootstrap_inner
+    self.run()
+  File "/usr/lib64/python3.9/threading.py", line 917, in run
+    self._target(*self._args, **self._kwargs)
+  File "/user/ljones/.gnn_juno/lib64/python3.9/site-packages/torch/utils/data/_utils/pin_memory.py", line 61, in _pin_memory_loop
+    do_one_step()
+  File "/user/ljones/.gnn_juno/lib64/python3.9/site-packages/torch/utils/data/_utils/pin_memory.py", line 37, in do_one_step
+    r = in_queue.get(timeout=MP_STATUS_CHECK_INTERVAL)
+  File "/usr/lib64/python3.9/multiprocessing/queues.py", line 122, in get
+    return _ForkingPickler.loads(res)
+  File "/user/ljones/.gnn_juno/lib64/python3.9/site-packages/torch/multiprocessing/reductions.py", line 541, in rebuild_storage_fd
+    fd = df.detach()
+  File "/usr/lib64/python3.9/multiprocessing/resource_sharer.py", line 57, in detach
+    with _resource_sharer.get_connection(self._id) as conn:
+  File "/usr/lib64/python3.9/multiprocessing/resource_sharer.py", line 86, in get_connection
+    c = Client(address, authkey=process.current_process().authkey)
+  File "/usr/lib64/python3.9/multiprocessing/connection.py", line 506, in Client
+    c = SocketClient(address)
+  File "/usr/lib64/python3.9/multiprocessing/connection.py", line 634, in SocketClient
+    s.connect(address)
+FileNotFoundError: [Errno 2] No such file or directory
+Traceback (most recent call last):
+  File "/user/ljones/GNNs-for-JUNO/utils/eval_regress.py", line 274, in <module>
+    main()
+  File "/user/ljones/GNNs-for-JUNO/utils/eval_regress.py", line 264, in main
+    preds, targets, mse, r2, energy = evaluate(model, eval_loader, device)
+  File "/user/ljones/GNNs-for-JUNO/utils/eval_regress.py", line 70, in evaluate
+    preds = model(batch.x, batch.pos, batch.edge_index, batch.batch)
+  File "/user/ljones/.gnn_juno/lib64/python3.9/site-packages/torch/nn/modules/module.py", line 1751, in _wrapped_call_impl
+    return self._call_impl(*args, **kwargs)
+  File "/user/ljones/.gnn_juno/lib64/python3.9/site-packages/torch/nn/modules/module.py", line 1762, in _call_impl
+    return forward_call(*args, **kwargs)
+  File "/user/ljones/GNNs-for-JUNO/utils/model.py", line 1222, in forward
+    z = self.encoder(x, pos, edge_index, batch)
+  File "/user/ljones/.gnn_juno/lib64/python3.9/site-packages/torch/nn/modules/module.py", line 1751, in _wrapped_call_impl
+    return self._call_impl(*args, **kwargs)
+  File "/user/ljones/.gnn_juno/lib64/python3.9/site-packages/torch/nn/modules/module.py", line 1762, in _call_impl
+    return forward_call(*args, **kwargs)
+  File "/user/ljones/GNNs-for-JUNO/utils/model.py", line 561, in forward
+    x, pos = self.egnn3(x, pos, edge_index)
+  File "/user/ljones/.gnn_juno/lib64/python3.9/site-packages/torch/nn/modules/module.py", line 1751, in _wrapped_call_impl
+    return self._call_impl(*args, **kwargs)
+  File "/user/ljones/.gnn_juno/lib64/python3.9/site-packages/torch/nn/modules/module.py", line 1762, in _call_impl
+    return forward_call(*args, **kwargs)
+  File "/user/ljones/GNNs-for-JUNO/utils/model.py", line 313, in forward
+    alpha = softmax(alpha, index=row, dim=0)  
+  File "/user/ljones/.gnn_juno/lib64/python3.9/site-packages/torch_geometric/utils/_softmax.py", line 74, in softmax
+    N = maybe_num_nodes(index, num_nodes)
+  File "/user/ljones/.gnn_juno/lib64/python3.9/site-packages/torch_geometric/utils/num_nodes.py", line 32, in maybe_num_nodes
+    return int(edge_index.max()) + 1 if edge_index.numel() > 0 else 0
+KeyboardInterrupt

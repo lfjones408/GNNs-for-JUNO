@@ -393,6 +393,106 @@ class EGNNLayerVtx(nn.Module):
         out = self.node_mlp(torch.cat([x, agg], dim=1))
         out = self.norm(out + self.res_connection(x))
         return out, pos
+    
+
+class EGNNLayerAttentionVtx(nn.Module):
+    def __init__(self, in_features, out_features, dropout_prob=0.1, use_vec=True):
+        super().__init__()
+        self.use_vec = use_vec
+
+        self.pre  = nn.LayerNorm(in_features)
+        self.norm = nn.LayerNorm(out_features)
+
+        # extra edge features:
+        # geometry: r_ij (3) if use_vec else d_ij (1)
+        add_dims = 3 if use_vec else 1
+        add_dims += 1  # dt (from TOF)
+        add_dims += 2  # projections from vtx (proj_i, proj_j)
+        add_dims += 1  # cos_ij opening angle
+
+        edge_in = 2 * in_features + add_dims
+
+        self.edge_mlp = nn.Sequential(
+            nn.Linear(edge_in, out_features),
+            nn.ReLU(),
+            nn.Dropout(dropout_prob),
+            nn.Linear(out_features, out_features),
+            nn.ReLU()
+        )
+
+        # --- attention + gate (ported from your attention layer) ---
+        self.att_mlp = nn.Sequential(
+            nn.Linear(edge_in, 64),
+            nn.LeakyReLU(),
+            nn.Linear(64, 1)
+        )
+        self.gate_mlp = nn.Sequential(
+            nn.Linear(edge_in, 64),
+            nn.ReLU(),
+            nn.Linear(64, 1),
+            nn.Sigmoid()
+        )
+        # -----------------------------------------------------------
+
+        self.node_mlp = nn.Sequential(
+            nn.Linear(in_features + out_features, out_features),
+            nn.ReLU(),
+            nn.Dropout(dropout_prob),
+            nn.Linear(out_features, out_features),
+            nn.ReLU()
+        )
+
+        self.res_connection = (
+            nn.Linear(in_features, out_features) if in_features != out_features else nn.Identity()
+        )
+
+    def forward(self, x, pos, vtx, tof, edge_index, batch):
+        # x: (N,C), pos: (N,3), vtx: (G,3), tof: (N,1) or (N,), batch: (N,)
+        x = self.pre(x)
+
+        r_i = (pos - vtx[batch])                       # (N,3)
+        r_norm = r_i.norm(dim=1, keepdim=True)         # (N,1)
+        u_i = r_i / (r_norm + 1e-6)                    # (N,3)
+
+        row, col = edge_index
+        x_i, x_j           = x[row], x[col]
+        pos_i, pos_j       = pos[row], pos[col]
+        u_i_row, u_i_col   = u_i[row], u_i[col]
+
+        r_ij = pos_i - pos_j                           # (E,3)
+        d_ij = r_ij.norm(dim=1, keepdim=True).clamp_min(1e-6)  # (E,1)
+
+        # TOF-corrected time ONLY
+        if tof.dim() == 1:
+            tof = tof.unsqueeze(1)                     # (N,1)
+        dt = (tof[row] - tof[col])                     # (E,1)
+
+        proj_i = (u_i_row * r_ij).sum(dim=1, keepdim=True)  # (E,1)
+        proj_j = (u_i_col * r_ij).sum(dim=1, keepdim=True)  # (E,1)
+        cos_ij = (u_i_row * u_i_col).sum(dim=1, keepdim=True).clamp(-1., 1.)  # (E,1)
+
+        geom = r_ij if self.use_vec else d_ij
+
+        # Edge features + attention/gating
+        edge_input = torch.cat([x_i, x_j, geom, dt, proj_i, proj_j, cos_ij], dim=1)  # (E, 2C + add_dims)
+
+        edge_feat = self.edge_mlp(edge_input)                 # (E, out)
+
+        # --- attention & gate ---
+        alpha = self.att_mlp(edge_input).squeeze(-1)          # (E,)
+        alpha = softmax(alpha, index=row, dim=0)              # softmax over incoming edges per target node i
+        gate  = self.gate_mlp(edge_input)                     # (E,1)
+
+        edge_feat = edge_feat * alpha.unsqueeze(1) * gate     # (E, out)
+        # -----------------------
+
+        # Aggregate to nodes i (targets of edges)
+        agg = torch.zeros(x.size(0), edge_feat.size(1), device=x.device, dtype=edge_feat.dtype)
+        agg.index_add_(0, row, edge_feat)                     # sum over neighbors j -> i
+
+        out = self.node_mlp(torch.cat([x, agg], dim=1))
+        out = self.norm(out + self.res_connection(x))
+        return out, pos
 
 class EGNNEncoder(nn.Module):
     def __init__(self, in_features, hidden_dim, latent_dim):
@@ -861,36 +961,31 @@ class TokenLayer(nn.Module):
 
 class EGNNEncoderToF(nn.Module):
     def __init__(self, in_features, hidden_dim, latent_dim,
-                 k=16, keep1=0.25, keep2=0.25,
                  pre_layers=3, mid_layers=2, post_layers=2,
-                 pooled_levels=None):                     # <— NEW
+                 pooled_levels=None,
+                 charge_col=0, time_col=1, prop_speed_ns_per_m=0.205,
+                 token_K=24, token_iters=3):
         super().__init__()
+        self.charge_col = charge_col
+        self.time_col = time_col
+        self.prop_speed = prop_speed_ns_per_m
 
-        self.pre = nn.ModuleList([EGNNLayerVtx(in_features if i==0 else hidden_dim, hidden_dim)
+        self.pre = nn.ModuleList([EGNNLayerAttentionVtx(in_features if i==0 else hidden_dim, hidden_dim)
                                   for i in range(pre_layers)])
 
-        self.token_layer = TokenLayer(K=24, iters=3, return_descriptors=True)
+        self.token_layer = TokenLayer(K=token_K, iters=token_iters, return_descriptors=True)
 
-        self.level0 = nn.ModuleList([EGNNLayerVtx(hidden_dim, hidden_dim) for _ in range(mid_layers)])
-        self.level1 = nn.ModuleList([EGNNLayerVtx(hidden_dim, hidden_dim) for _ in range(mid_layers)])
-        self.level2 = nn.ModuleList([EGNNLayerVtx(hidden_dim, hidden_dim) for _ in range(mid_layers)])
-
-        self.post   = nn.ModuleList([EGNNLayerVtx(hidden_dim, hidden_dim) for _ in range(post_layers)])
+        self.level_blocks = nn.ModuleList([
+            nn.ModuleList([EGNNLayerAttentionVtx(hidden_dim, hidden_dim) for _ in range(mid_layers)]),
+            nn.ModuleList([EGNNLayerAttentionVtx(hidden_dim, hidden_dim) for _ in range(mid_layers)]),
+            nn.ModuleList([EGNNLayerAttentionVtx(hidden_dim, hidden_dim) for _ in range(mid_layers)]),
+            nn.ModuleList([EGNNLayerAttentionVtx(hidden_dim, hidden_dim) for _ in range(post_layers)]),
+        ])
 
         self.final_norm = nn.LayerNorm(hidden_dim)
+        self.desc_proj = nn.Sequential(nn.Linear(3, hidden_dim), nn.ReLU(), nn.LayerNorm(hidden_dim))
 
-        self.desc_proj = nn.Sequential(
-            nn.Linear(3, hidden_dim),
-            nn.ReLU(),
-            nn.LayerNorm(hidden_dim),
-        )
-
-        # --- attention readout ---
-        self.readout_gate = nn.Sequential(
-            nn.Linear(hidden_dim, hidden_dim),
-            nn.ReLU(),
-            nn.Linear(hidden_dim, 1)        # gate scalar per node
-        )
+        self.readout_gate = nn.Sequential(nn.Linear(hidden_dim, hidden_dim), nn.ReLU(), nn.Linear(hidden_dim, 1))
         self.att_pool = GlobalAttention(gate_nn=self.readout_gate)
 
         self.lin = nn.Sequential(
@@ -901,30 +996,37 @@ class EGNNEncoderToF(nn.Module):
 
         self.has_fixed_pool = pooled_levels is not None
         if self.has_fixed_pool:
-            self.num_levels = len(pooled_levels)   # e.g., 4
+            self.num_levels = len(pooled_levels)
             for L, Ldict in enumerate(pooled_levels):
-                self.register_buffer(f"cluster_id_{L}",      Ldict["cluster_id"].long())      # (N_prev,)
-                self.register_buffer(f"pos_pool_{L}",        Ldict["pos_pool"].float())       # (M_L, 3)
-                self.register_buffer(f"edge_pool_{L}",       Ldict["edge_index_pool"].long()) # (2, E_L)
+                self.register_buffer(f"cluster_id_{L}",      Ldict["cluster_id"].long())
+                self.register_buffer(f"pos_pool_{L}",        Ldict["pos_pool"].float())
+                self.register_buffer(f"edge_pool_{L}",       Ldict["edge_index_pool"].long())
 
+    # helpers
+    def _t_corr(self, pos, vtx, batch, raw_fht):
+        if raw_fht is None:
+            return None
+        if raw_fht.dim() == 1:
+            raw_fht = raw_fht.unsqueeze(1)
+        d = (pos - vtx[batch]).norm(dim=1, keepdim=True)
+        t_corr = raw_fht - d / self.prop_speed
+        t0 = scatter_mean(t_corr, batch, dim=0)[batch]
+        return t_corr - t0
+    
     def _apply_fixed_pool_level(
         self, x, pos, batch, L,
         raw_npe=None, raw_fht=None,
-        charge_col=0, time_col=1, eps=1e-8
+        charge_col=None, time_col=None, eps=1e-8
     ):
         """
-        Applies level-L fixed pooling to a *batched* graph and (optionally) pools
-        raw_npe and raw_fht too.
+        Fixed pooling for level L over a *batched* detector graph.
 
-        In:
-        x, pos, batch : current tensors before pooling
-        L             : level index (0,1,2,...)
-        raw_npe       : (N,1) or (N,) float tensor of raw pe counts (optional)
-        raw_fht       : (N,1) or (N,) float tensor of raw first-hit times (ns) (optional)
-
-        Out:
-        x_pool, pos_pool, batch_pool, edge_index_pool, keep_map (None), pooled_raw_npe, pooled_raw_fht
+        Returns:
+            x_pool, pos_pool, batch_pool, edge_index_pool, pooled_raw_npe, pooled_raw_fht
         """
+        charge_col = self.charge_col if charge_col is None else charge_col
+        time_col   = self.time_col   if time_col   is None else time_col
+
         cluster_id_single = getattr(self, f"cluster_id_{L}")      # (N_prev,)
         pos_pool_single   = getattr(self, f"pos_pool_{L}")        # (M_L, 3)
         edge_pool_single  = getattr(self, f"edge_pool_{L}")       # (2, E_L)
@@ -934,9 +1036,12 @@ class EGNNEncoderToF(nn.Module):
         G = int(batch.max().item()) + 1
         M = pos_pool_single.size(0)
 
-        # --- local index per event (assumes fixed detector node ordering) ---
-        N0 = (batch == 0).sum().item()          # e.g., 17612
-        i_local = torch.arange(N, device=device) % N0
+        # --- local index per event (assumes fixed node count & ordering) ---
+        # If node counts may vary, replace this with a per-event offset method.
+        N0 = (batch == 0).sum().item()
+        if not torch.all(batch.bincount() == N0):
+            raise RuntimeError("Fixed pooling requires equal nodes per event (and consistent ordering).")
+        i_local = torch.arange(N, device=device) % N0  # 0..N0-1 within each event
 
         # --- flat cluster ids across batch (g*M + cluster_id[i_local]) ---
         cluster_flat = cluster_id_single[i_local].to(device) + batch.to(device) * M
@@ -983,7 +1088,7 @@ class EGNNEncoderToF(nn.Module):
             if raw_npe.dim() == 2 and raw_npe.size(-1) == 1:
                 raw_npe = raw_npe.squeeze(-1)
             pooled_raw_npe = scatter_add(raw_npe.to(torch.float32), cluster_flat, dim=0, dim_size=dim_size)
-            pooled_raw_npe = pooled_raw_npe.view(-1, 1)  # keep (G*M,1)
+            pooled_raw_npe = pooled_raw_npe.view(-1, 1)
 
         pooled_raw_fht = None
         if raw_fht is not None:
@@ -991,7 +1096,7 @@ class EGNNEncoderToF(nn.Module):
                 raw_fht = raw_fht.squeeze(-1)
             pooled_raw_fht, _ = scatter_min(raw_fht.to(torch.float32), cluster_flat, dim=0, dim_size=dim_size)
             pooled_raw_fht = torch.where(torch.isinf(pooled_raw_fht), torch.zeros_like(pooled_raw_fht), pooled_raw_fht)
-            pooled_raw_fht = pooled_raw_fht.view(-1, 1)  # keep (G*M,1)
+            pooled_raw_fht = pooled_raw_fht.view(-1, 1)
 
         # ===================== Batched pooled edges =======================
         e = edge_pool_single.to(device)
@@ -1002,78 +1107,40 @@ class EGNNEncoderToF(nn.Module):
 
         return x_pool, pos_pool, batch_pool, edge_index_pool, pooled_raw_npe, pooled_raw_fht
 
-    def forward(self, x, pos, vtx, raw_npe, raw_fht, edge_index, batch):
-        # t_corr: keep (N,1) so indexing gives (E,1)
-        if raw_fht.dim() == 1:
-            raw_fht = raw_fht.unsqueeze(1)           # (N,1)
-        d = (pos - vtx[batch]).norm(dim=1, keepdim=True)  # (N,1)
-        t_corr = raw_fht - d / 0.205
-        t0 = scatter_mean(t_corr, batch, dim=0)[batch]
-        t_corr = t_corr - t0                          # (N,1)
+    def _pool_and_retime(self, x, pos, batch, edge_index, raw_npe, raw_fht, L):
+        x, pos, batch, edge_index, raw_npe, raw_fht = self._apply_fixed_pool_level(
+            x, pos, batch, L=L, raw_npe=raw_npe, raw_fht=raw_fht,
+            charge_col=self.charge_col, time_col=self.time_col
+        )
+        return x, pos, batch, edge_index, raw_npe, raw_fht
 
-        # --- pre ---
+    def forward(self, x, pos, vtx, raw_npe, raw_fht, edge_index, batch):
+        if not self.has_fixed_pool:
+            raise RuntimeError("Fixed pooling required but pooled_levels=None.")
+
+        # pre
+        t_corr = self._t_corr(pos, vtx, batch, raw_fht)
         for layer in self.pre:
             x, pos = layer(x, pos, vtx, t_corr, edge_index, batch)
 
-        _, _, desc = self.token_layer(x, pos, raw_fht, vtx, batch, raw_npe=raw_npe)  # desc: (G,3)
+        _, _, desc = self.token_layer(x, pos, raw_fht, vtx, batch, raw_npe=raw_npe)  # (G,3)
 
-        # --- mid ---
-        # --- level0 ---
-        x, pos, batch, edge_index, pooled_raw_npe, pooled_raw_fht = self._apply_fixed_pool_level(x, pos, batch, L=0, raw_npe=raw_npe, raw_fht=raw_fht)
-        raw_npe, raw_fht = pooled_raw_npe, pooled_raw_fht
+        # multilevel
+        levels_to_use = min(self.num_levels, len(self.level_blocks))
+        for L in range(levels_to_use):
+            x, pos, batch, edge_index, raw_npe, raw_fht = self._pool_and_retime(
+                x, pos, batch, edge_index, raw_npe, raw_fht, L=L
+            )
+            t_corr = self._t_corr(pos, vtx, batch, raw_fht)
+            for layer in self.level_blocks[L]:
+                x, pos = layer(x, pos, vtx, t_corr, edge_index, batch)
 
-        d = (pos - vtx[batch]).norm(dim=1, keepdim=True)
-        t_corr = raw_fht - d / 0.205
-        t0 = scatter_mean(t_corr, batch, dim=0)[batch]
-        t_corr = t_corr - t0
-
-        for layer in self.level0:
-            x, pos = layer(x, pos, vtx, t_corr, edge_index, batch)
-
-        # --- level1 ---
-        x, pos, batch, edge_index, pooled_raw_npe, pooled_raw_fht = self._apply_fixed_pool_level(x, pos, batch, L=0, raw_npe=raw_npe, raw_fht=raw_fht)
-        raw_npe, raw_fht = pooled_raw_npe, pooled_raw_fht
-        
-        d = (pos - vtx[batch]).norm(dim=1, keepdim=True)
-        t_corr = raw_fht - d / 0.205
-        t0 = scatter_mean(t_corr, batch, dim=0)[batch]
-        t_corr = t_corr - t0
-
-        for layer in self.level1:
-            x, pos = layer(x, pos, vtx, t_corr, edge_index, batch)
-
-        # --- level2 ---
-        x, pos, batch, edge_index, pooled_raw_npe, pooled_raw_fht = self._apply_fixed_pool_level(x, pos, batch, L=0, raw_npe=raw_npe, raw_fht=raw_fht)
-        raw_npe, raw_fht = pooled_raw_npe, pooled_raw_fht
-        
-        d = (pos - vtx[batch]).norm(dim=1, keepdim=True)
-        t_corr = raw_fht - d / 0.205
-        t0 = scatter_mean(t_corr, batch, dim=0)[batch]
-        t_corr = t_corr - t0
-
-        for layer in self.level2:
-            x, pos = layer(x, pos, vtx, t_corr, edge_index, batch)
-
-
-        # --- post ---
-        x, pos, batch, edge_index, pooled_raw_npe, pooled_raw_fht = self._apply_fixed_pool_level(x, pos, batch, L=0, raw_npe=raw_npe, raw_fht=raw_fht)
-        raw_npe, raw_fht = pooled_raw_npe, pooled_raw_fht
-        
-        d = (pos - vtx[batch]).norm(dim=1, keepdim=True)
-        t_corr = raw_fht - d / 0.205
-        t0 = scatter_mean(t_corr, batch, dim=0)[batch]
-        t_corr = t_corr - t0
-
-        for layer in self.post:
-            x, pos = layer(x, pos, vtx, t_corr, edge_index, batch)
-
-        # --- readout ---
+        # readout
         x = self.final_norm(x)
-        g = self.att_pool(x, batch)                # (G, hidden)
-        desc = F.layer_norm(desc, desc.shape[1:])     # (G,3)
-        g = torch.cat([g, self.desc_proj(desc)], dim=1)  # (G, 2*hidden)
-        z = self.lin(g)
-        return z
+        g = self.att_pool(x, batch)
+        desc = F.layer_norm(desc, desc.shape[1:])
+        g = torch.cat([g, self.desc_proj(desc)], dim=1)
+        return self.lin(g)
     
 class EGNNHierEncoder(nn.Module):
     def __init__(self, in_features, hidden_dim=64, latent_dim=32,
@@ -1136,21 +1203,24 @@ class EGNNHierEncoder(nn.Module):
 
 
 class EGNNEnergyRegressor(nn.Module):
-    def __init__(self, in_features, hidden_dim=64, latent_dim=32):
+    def __init__(self, in_features, hidden_dim=64, latent_dim=32, pooled_levels=None):
         super().__init__()
-        self.encoder = EGNNEncoder(in_features, hidden_dim, latent_dim)
-        # self.encoder = EGNNEncoder(
-        #     in_features=in_features, hidden_dim=hidden_dim, latent_dim=latent_dim
-        #     pre_layers=3, mid_layers=4, post_layers=3, pooled_levels=pooled_levels
-        # )
+        # self.encoder = EGNNAttentionEncoder(in_features, hidden_dim, latent_dim)
+        self.encoder = EGNNEncoderToF(
+            in_features=in_features, hidden_dim=hidden_dim, latent_dim=latent_dim,
+            pre_layers=3, mid_layers=4, post_layers=3, 
+            pooled_levels=pooled_levels
+        )
         self.head = nn.Sequential(
             nn.Linear(latent_dim, hidden_dim),
             nn.ReLU(),
             nn.Linear(hidden_dim, 1)
         )
 
-    def forward(self, x, pos, edge_index, batch):
-        z = self.encoder(x, pos, edge_index, batch)
+    # def forward(self, x, pos, edge_index, batch):
+    def forward(self, x, pos, vtx, raw_npe, raw_fht, edge_index, batch):
+        # z = self.encoder(x, pos, edge_index, batch)
+        z = self.encoder(x, pos, vtx, raw_npe, raw_fht, edge_index, batch)
         # out = self.head(z)
         # mu, log_var = out[...,0], out[...,1]
         return self.head(z)

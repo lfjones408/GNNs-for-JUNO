@@ -1,27 +1,47 @@
-=== Job started at Tue 26 Aug 10:47:50 BST 2025 ===
+=== Job started at Wed 27 Aug 16:21:51 BST 2025 ===
 === Running on host: alpha.ph.liv.ac.uk ===
 === CUDA_VISIBLE_DEVICES: 1,3 ===
-W0826 10:47:51.570820 611984 torch/distributed/run.py:766] 
-W0826 10:47:51.570820 611984 torch/distributed/run.py:766] *****************************************
-W0826 10:47:51.570820 611984 torch/distributed/run.py:766] Setting OMP_NUM_THREADS environment variable for each process to be 1 in default, to avoid your system being overloaded, please further tune the variable for optimal performance in your application as needed. 
-W0826 10:47:51.570820 611984 torch/distributed/run.py:766] *****************************************
-/user/ljones/.gnn_juno/lib64/python3.9/site-packages/networkx/utils/backends.py:135: RuntimeWarning: networkx backend defined more than once: nx-loopback
-  backends.update(_get_backends("networkx.backends"))
-/user/ljones/.gnn_juno/lib64/python3.9/site-packages/networkx/utils/backends.py:135: RuntimeWarning: networkx backend defined more than once: nx-loopback
-  backends.update(_get_backends("networkx.backends"))
-2025-08-26 10:47:56,212 - INFO - [Device] cuda:0 | Total GPU Memory: 81155.75 MB | Memory Allocated 0.0 MB
-2025-08-26 10:47:56,213 - INFO - [Device] cuda:1 | Total GPU Memory: 81155.75 MB | Memory Allocated 0.0 MB
-2025-08-26 10:47:56,225 - INFO - [Data] train batch: 947 | validation batch: 237
-2025-08-26 10:47:56,225 - INFO - [Data] train evt size: 30335 | validation evt size: 7584
-2025-08-26 10:47:56,227 - INFO - [Data] train batch: 947 | validation batch: 237
-2025-08-26 10:47:56,227 - INFO - [Data] train evt size: 30335 | validation evt size: 7584
-/user/ljones/.gnn_juno/lib64/python3.9/site-packages/torch/distributed/distributed_c10d.py:4631: UserWarning: No device id is provided via `init_process_group` or `barrier `. Using the current device set by the user. 
-  warnings.warn(  # warn only once
-/user/ljones/.gnn_juno/lib64/python3.9/site-packages/torch/distributed/distributed_c10d.py:4631: UserWarning: No device id is provided via `init_process_group` or `barrier `. Using the current device set by the user. 
-  warnings.warn(  # warn only once
-[rank0]:[W826 10:47:56.670036316 ProcessGroupNCCL.cpp:4718] [PG ID 0 PG GUID 0 Rank 0]  using GPU 0 as device used by this process is currently unknown. This can potentially cause a hang if this rank to GPU mapping is incorrect. You can pecify device_id in init_process_group() to force use of a particular device.
-[rank1]:[W826 10:47:56.670054506 ProcessGroupNCCL.cpp:4718] [PG ID 0 PG GUID 0 Rank 1]  using GPU 1 as device used by this process is currently unknown. This can potentially cause a hang if this rank to GPU mapping is incorrect. You can pecify device_id in init_process_group() to force use of a particular device.
-2025-08-26 10:47:56,932 - INFO - [Model] Wrapped in DDP
-2025-08-26 10:47:56,932 - INFO - [Model] Wrapped in DDP
-2025-08-26 10:47:56,933 - INFO - [Memory] GPU Allocated: 4.59 MB | GPU Reserved: 24.00 MB | CPU RSS: 1000.52 MB
-2025-08-26 10:47:56,934 - INFO - [Memory] GPU Allocated: 4.59 MB | GPU Reserved: 24.00 MB | CPU RSS: 999.15 MB
+W0827 16:21:53.088679 44066 torch/distributed/run.py:766] 
+W0827 16:21:53.088679 44066 torch/distributed/run.py:766] *****************************************
+W0827 16:21:53.088679 44066 torch/distributed/run.py:766] Setting OMP_NUM_THREADS environment variable for each process to be 1 in default, to avoid your system being overloaded, please further tune the variable for optimal performance in your application as needed. 
+W0827 16:21:53.088679 44066 torch/distributed/run.py:766] *****************************************
+W0827 16:21:53.352271 44066 torch/distributed/elastic/agent/server/api.py:719] Received Signals.SIGINT death signal, shutting down workers
+W0827 16:21:53.353330 44066 torch/distributed/elastic/multiprocessing/api.py:900] Sending process 44198 closing signal SIGINT
+W0827 16:21:53.353639 44066 torch/distributed/elastic/multiprocessing/api.py:900] Sending process 44204 closing signal SIGINT
+Traceback (most recent call last):
+  File "/user/ljones/GNNs-for-JUNO/utils/train_multi_gpu_regress.py", line 3, in <module>
+    import torch
+  File "/user/ljones/.gnn_juno/lib64/python3.9/site-packages/torch/__init__.py", line 409, in <module>
+    from torch._C import *  # noqa: F403
+  File "<frozen importlib._bootstrap>", line 203, in _lock_unlock_module
+KeyboardInterrupt
+Traceback (most recent call last):
+  File "/user/ljones/GNNs-for-JUNO/utils/train_multi_gpu_regress.py", line 3, in <module>
+    import torch
+  File "/user/ljones/.gnn_juno/lib64/python3.9/site-packages/torch/__init__.py", line 409, in <module>
+    from torch._C import *  # noqa: F403
+  File "<frozen importlib._bootstrap>", line 203, in _lock_unlock_module
+KeyboardInterrupt
+Traceback (most recent call last):
+  File "/user/ljones/.gnn_juno/bin/torchrun", line 8, in <module>
+    sys.exit(main())
+  File "/user/ljones/.gnn_juno/lib64/python3.9/site-packages/torch/distributed/elastic/multiprocessing/errors/__init__.py", line 355, in wrapper
+    return f(*args, **kwargs)
+  File "/user/ljones/.gnn_juno/lib64/python3.9/site-packages/torch/distributed/run.py", line 892, in main
+    run(args)
+  File "/user/ljones/.gnn_juno/lib64/python3.9/site-packages/torch/distributed/run.py", line 883, in run
+    elastic_launch(
+  File "/user/ljones/.gnn_juno/lib64/python3.9/site-packages/torch/distributed/launcher/api.py", line 139, in __call__
+    return launch_agent(self._config, self._entrypoint, list(args))
+  File "/user/ljones/.gnn_juno/lib64/python3.9/site-packages/torch/distributed/launcher/api.py", line 261, in launch_agent
+    result = agent.run()
+  File "/user/ljones/.gnn_juno/lib64/python3.9/site-packages/torch/distributed/elastic/metrics/api.py", line 138, in wrapper
+    result = f(*args, **kwargs)
+  File "/user/ljones/.gnn_juno/lib64/python3.9/site-packages/torch/distributed/elastic/agent/server/api.py", line 711, in run
+    result = self._invoke_run(role)
+  File "/user/ljones/.gnn_juno/lib64/python3.9/site-packages/torch/distributed/elastic/agent/server/api.py", line 870, in _invoke_run
+    time.sleep(monitor_interval)
+  File "/user/ljones/.gnn_juno/lib64/python3.9/site-packages/torch/distributed/elastic/multiprocessing/api.py", line 84, in _terminate_process_handler
+    raise SignalException(f"Process {os.getpid()} got signal: {sigval}", sigval=sigval)
+torch.distributed.elastic.multiprocessing.api.SignalException: Process 44066 got signal: 2
+=== Job ended at Wed 27 Aug 16:21:54 BST 2025 ===

@@ -168,9 +168,8 @@ def train_epoch(model, loader, loss_fn, optimizer, device, device_type, scaler,
         batch = batch.to(device)
 
         with autocast(device_type=device_type):
-            # (mu, log_var) = model(batch.x, batch.pos, batch.vertex, batch.raw_npe, batch.raw_fht, batch.edge_index, batch.batch)
-            # loss = loss_fn((mu, log_var), batch)
-            pred = model(batch.x, batch.pos, batch.edge_index, batch.batch)
+            pred = model(batch.x, batch.pos, batch.vertex, batch.raw_npe, batch.raw_fht, batch.edge_index, batch.batch)
+            # pred = model(batch.x, batch.pos, batch.edge_index, batch.batch)
             pred = pred.squeeze(-1)
             loss = loss_fn(pred, batch)
 
@@ -192,9 +191,8 @@ def validate(model, loader, loss_fn, device, device_type):
         for batch in loader:
             batch = batch.to(device)
             with autocast(device_type=device_type):
-                # (mu, log_var) = model(batch.x, batch.pos, batch.vertex, batch.raw_npe, batch.raw_fht, batch.edge_index, batch.batch)
-                # loss  = loss_fn((mu, log_var), batch)
-                pred = model(batch.x, batch.pos, batch.edge_index, batch.batch)
+                pred = model(batch.x, batch.pos, batch.vertex, batch.raw_npe, batch.raw_fht, batch.edge_index, batch.batch) # ToF
+                # pred = model(batch.x, batch.pos, batch.edge_index, batch.batch) # EGNN
                 pred = pred.squeeze(-1)
                 loss = loss_fn(pred, batch)
 
@@ -272,7 +270,7 @@ def plot_input_data(train_loader, test_loader, save_path='plots/target_hist.png'
     test_phi = np.concatenate([x.flatten() for x in test_phi])
     test_flav = np.concatenate([x.flatten() for x in test_flav])
 
-    fig = plt.figure(figsize=(12, 12))
+    fig = plt.figure(figsize=(10, 10))
     ax_train_e = fig.add_subplot(211)
     ax_test_e = fig.add_subplot(212)
 
@@ -369,10 +367,10 @@ def main():
 
     # raw_model = EGNNFlavourClassifier(
     raw_model = EGNNEnergyRegressor(
-        in_features=2,
+        in_features=4,
         hidden_dim=hidden_dim,
-        latent_dim=latent_dim
-        # pooled_levels=pool_levels
+        latent_dim=latent_dim,
+        pooled_levels=pool_levels
     ).to(device)
 
     # param_count = sum(p.numel() for p in raw_model.parameters())
@@ -457,14 +455,24 @@ def main():
         
         time_log.append(epoch_time)
 
-        torch.save({
-          'epoch': epoch,
-        #   'fold' : fold,
-          'model_state_dict': model.state_dict(),
-          'optimizer_state_dict': optimizer.state_dict(),
-          'train_losses': train_losses,
-          'test_losses': val_losses},
-          f'{output_dir}/snapshots/regress/nu_mu_like/energy/epoch_{epoch}_snapshot.pth')
+        # torch.save({
+        # 'epoch': epoch,
+        # #   'fold' : fold,
+        # 'model_state_dict': model.state_dict(),
+        # 'optimizer_state_dict': optimizer.state_dict(),
+        # 'train_losses': train_losses,
+        # 'test_losses': val_losses},
+        # f'{output_dir}/snapshots/regress/nu_mu_like/energy/epoch_{epoch}_snapshot.pth')
+
+        to_save = {
+            'epoch': epoch,
+            'model_state_dict': model.module.state_dict(),  # <— no "module." prefix
+            'optimizer_state_dict': optimizer.state_dict(),
+            'train_losses': train_losses,
+            'test_losses': val_losses,
+        }
+        if get_rank() == 0:
+            torch.save(to_save, f'{output_dir}/snapshots/regress/nu_e_like/energy/test/epoch_{epoch+1}_snapshot.pth')
 
         if val_total < best_val_loss:
             best_val_loss = val_total

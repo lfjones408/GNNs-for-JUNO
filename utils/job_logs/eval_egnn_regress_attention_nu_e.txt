@@ -1,0 +1,11 @@
+=== Job started at Thu 28 Aug 10:56:24 BST 2025
+=== Running on host: alpha.ph.liv.ac.uk ===
+=== CUDA_VISIBLE_DEVICES: 1 ===
+/user/ljones/.gnn_juno/lib64/python3.9/site-packages/networkx/utils/backends.py:135: RuntimeWarning: networkx backend defined more than once: nx-loopback
+  backends.update(_get_backends("networkx.backends"))
+2025-08-28 10:56:30,042 - INFO - [Device] cuda
+2025-08-28 10:56:31,096 - INFO - Loaded model from output/snapshots/regress/nu_e_like/energy/attention/epoch_5_snapshot.pth
+2025-08-28 11:18:35,449 - INFO - Evaluation MSE: 1.4829, R2: 0.9499
+/user/ljones/GNNs-for-JUNO/utils/eval_regress.py:196: RuntimeWarning: More than 20 figures have been opened. Figures created through the pyplot interface (`matplotlib.pyplot.figure`) are retained until explicitly closed and may consume too much memory. (To control this warning, see the rcParam `figure.max_open_warning`). Consider using `matplotlib.pyplot.close()`.
+  plt.figure(figsize=(10, 8))
+=== Job ended at Thu 28 Aug 11:18:43 BST 2025

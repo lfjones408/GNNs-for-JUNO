@@ -255,6 +255,8 @@ class EGNNJUNODataset(Dataset):
 
         self.npe = None
         self.fht = None
+        self.slope = None
+        self.nperatio = None
         self._length = None
 
         self._load_data()
@@ -264,6 +266,10 @@ class EGNNJUNODataset(Dataset):
             self.npe_std = stats['npe_std']
             self.fht_mean = stats['fht_mean']
             self.fht_std = stats['fht_std']
+            self.slope_mean = stats['slope_mean']
+            self.slope_std  = stats['slope_std']
+            self.nperatio_mean = stats['nperatio4_mean']
+            self.nperatio_std  = stats['nperatio4_std']
         else:
             self._compute_normalization_stats()
 
@@ -314,11 +320,15 @@ class EGNNJUNODataset(Dataset):
             with h5py.File(self.h5_path, 'r') as f:
                 npe = np.log1p(f['npe'][idx])
                 fht = f['fht'][idx]
+                slope = f['slope'][idx]
+                nperatio = f['nperatio4']
                 label = f['labels'][idx]
 
         npe = (npe - self.npe_mean) / self.npe_std
         fht = (fht - self.fht_mean) / self.fht_std
-        features = np.stack((npe, fht), axis=1)
+        slope = (slope - self.npe_mean) / self.slope_std
+        nperatio = (nperatio - self.nperatio_mean)/ self.nperatio_std
+        features = np.stack((npe, fht, slope, nperatio), axis=1)
 
         x = torch.tensor(features, dtype=torch.float32)
         edge_index = self.edge_index
@@ -350,6 +360,8 @@ class EGNNMultiJUNODataset(Dataset):
 
         self.npe = []
         self.fht = []
+        self.slope = []
+        self.nperatio = []
         self.labels = []
 
         self.file_handles = [None] * len(file_paths)
@@ -375,6 +387,10 @@ class EGNNMultiJUNODataset(Dataset):
             self.npe_std = stats['npe_std']
             self.fht_mean = stats['fht_mean']
             self.fht_std = stats['fht_std']
+            self.slope_mean = stats['slope_mean']
+            self.slope_std  = stats['slope_std']
+            self.nperatio_mean = stats['nperatio4_mean']
+            self.nperatio_std  = stats['nperatio4_std']
         else:
             self._compute_global_stats()
 
@@ -419,6 +435,8 @@ class EGNNMultiJUNODataset(Dataset):
             f = self.file_handles[file_idx]
             npe = np.log1p(f['npe'][local_idx])
             fht = f['fht'][local_idx]
+            slope = f['slope'][local_idx]
+            nperatio = f['nperatio4'][local_idx]
             label = f['labels'][local_idx]
 
         raw_fht = torch.from_numpy(np.asarray(fht, dtype=np.float32)).view(-1, 1)
@@ -426,7 +444,9 @@ class EGNNMultiJUNODataset(Dataset):
 
         npe = (npe - self.npe_mean) / self.npe_std
         fht = (fht - self.fht_mean) / self.fht_std
-        features = np.stack((npe, fht), axis=1)
+        slope = (slope - self.npe_mean) / self.slope_std
+        nperatio = (nperatio - self.nperatio_mean)/ self.nperatio_std
+        features = np.stack((npe, fht, slope, nperatio), axis=1)
 
         x = torch.tensor(features, dtype=torch.float32)
         # x = torch.cat([x, torch.zeros(1, x.size(1))], dim=0)

@@ -1,16 +1,16 @@
-input: training_files_nu_e.txt
+input: evaluation_files_nu_mu.txt
 output: output
 graph: utils/pmt_graph.pt
 stats: utils/norm_stats.npz
 
 training:
-  epochs: 100
+  epochs: 5
   batch_size: 16
   lr: 0.001
-  latent_dim: 128
-  hidden_dim: 128
+  latent_dim: 64
+  hidden_dim: 64
   patience: 10
-  limit:
+  limit: 10
   num_workers: 6
   loss: regression
   class_type: 

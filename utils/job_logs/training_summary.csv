@@ -117,3 +117,12 @@ Date/Time,Input,Batch Size,Learning Rate,Latent Dim,Hidden Dim,Num Epochs,Num Wo
 2025-08-22 18:49:47,training_files_nu_e.txt,16,0.001,128,128,1,6,heteroscedastic,energy,312,78,17.31,61379.75,3199.07
 2025-08-23 02:42:21,training_files_nu_e.txt,16,0.001,128,128,100,6,heteroscedastic,energy,30335,7584,1486.88,61379.75,3775.94
 2025-08-26 10:34:48,training_files_nu_e.txt,16,0.001,128,128,100,6,regression,energy,312,78,11.15,60212.92,3108.3
+2025-08-26 23:42:42,training_files_nu_e.txt,16,0.001,64,64,10,6,regression,energy,312,78,10.77,67324.25,3175.9
+2025-08-27 00:02:28,training_files_nu_e.txt,16,0.001,64,64,10,6,regression,energy,312,78,11.6,31816.9,3230.4
+2025-08-27 00:06:18,training_files_nu_e.txt,32,0.001,64,64,100,6,regression,energy,312,78,10.39,63606.95,3264.54
+2025-08-27 00:26:30,training_files_nu_e.txt,32,0.001,128,128,100,6,regression,energy,312,78,10.2,66798.18,3271.71
+2025-08-27 00:36:52,training_files_nu_e.txt,16,0.001,64,64,100,6,regression,energy,312,78,12.06,47124.56,3270.3
+2025-08-27 02:30:32,training_files_nu_e.txt,16,0.001,64,64,10,6,regression,energy,30335,7584,967.27,67324.25,3768.51
+2025-08-27 15:58:55,training_files_nu_e.txt,16,0.001,64,64,100,6,regression,energy,29124,7281,937.21,67324.25,3719.62
+2025-09-11 10:26:03,evaluation_files_nu_mu.txt,16,0.001,64,64,5,6,regression,energy,312,78,11.47,67438.21,3172.69
+2025-09-11 10:32:51,evaluation_files_nu_mu.txt,16,0.001,64,64,5,6,regression,energy,312,78,12.9,47238.53,3327.82

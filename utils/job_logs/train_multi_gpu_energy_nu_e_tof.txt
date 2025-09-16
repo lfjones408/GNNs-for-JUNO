@@ -1,0 +1,132 @@
+=== Job started at Wed 27 Aug 00:28:58 BST 2025 ===
+=== Running on host: alpha.ph.liv.ac.uk ===
+=== CUDA_VISIBLE_DEVICES: 1,5 ===
+W0827 00:29:00.352602 2251565 torch/distributed/run.py:766] 
+W0827 00:29:00.352602 2251565 torch/distributed/run.py:766] *****************************************
+W0827 00:29:00.352602 2251565 torch/distributed/run.py:766] Setting OMP_NUM_THREADS environment variable for each process to be 1 in default, to avoid your system being overloaded, please further tune the variable for optimal performance in your application as needed. 
+W0827 00:29:00.352602 2251565 torch/distributed/run.py:766] *****************************************
+/user/ljones/.gnn_juno/lib64/python3.9/site-packages/networkx/utils/backends.py:135: RuntimeWarning: networkx backend defined more than once: nx-loopback
+  backends.update(_get_backends("networkx.backends"))
+/user/ljones/.gnn_juno/lib64/python3.9/site-packages/networkx/utils/backends.py:135: RuntimeWarning: networkx backend defined more than once: nx-loopback
+  backends.update(_get_backends("networkx.backends"))
+2025-08-27 00:29:05,153 - INFO - [Device] cuda:0 | Total GPU Memory: 81155.75 MB | Memory Allocated 0.0 MB
+2025-08-27 00:29:05,158 - INFO - [Device] cuda:1 | Total GPU Memory: 81155.75 MB | Memory Allocated 0.0 MB
+2025-08-27 00:29:05,168 - INFO - [Data] train batch: 9 | validation batch: 2
+2025-08-27 00:29:05,168 - INFO - [Data] train evt size: 312 | validation evt size: 78
+2025-08-27 00:29:05,173 - INFO - [Data] train batch: 9 | validation batch: 2
+2025-08-27 00:29:05,173 - INFO - [Data] train evt size: 312 | validation evt size: 78
+/user/ljones/.gnn_juno/lib64/python3.9/site-packages/torch_geometric/deprecation.py:26: UserWarning: 'nn.glob.GlobalAttention' is deprecated, use 'nn.aggr.AttentionalAggregation' instead
+  warnings.warn(out)
+/user/ljones/.gnn_juno/lib64/python3.9/site-packages/torch_geometric/deprecation.py:26: UserWarning: 'nn.glob.GlobalAttention' is deprecated, use 'nn.aggr.AttentionalAggregation' instead
+  warnings.warn(out)
+/user/ljones/.gnn_juno/lib64/python3.9/site-packages/torch/distributed/distributed_c10d.py:4631: UserWarning: No device id is provided via `init_process_group` or `barrier `. Using the current device set by the user. 
+  warnings.warn(  # warn only once
+/user/ljones/.gnn_juno/lib64/python3.9/site-packages/torch/distributed/distributed_c10d.py:4631: UserWarning: No device id is provided via `init_process_group` or `barrier `. Using the current device set by the user. 
+  warnings.warn(  # warn only once
+[rank0]:[W827 00:29:05.448989196 ProcessGroupNCCL.cpp:4718] [PG ID 0 PG GUID 0 Rank 0]  using GPU 0 as device used by this process is currently unknown. This can potentially cause a hang if this rank to GPU mapping is incorrect. You can pecify device_id in init_process_group() to force use of a particular device.
+[rank1]:[W827 00:29:05.449026076 ProcessGroupNCCL.cpp:4718] [PG ID 0 PG GUID 0 Rank 1]  using GPU 1 as device used by this process is currently unknown. This can potentially cause a hang if this rank to GPU mapping is incorrect. You can pecify device_id in init_process_group() to force use of a particular device.
+2025-08-27 00:29:05,773 - INFO - [Model] Wrapped in DDP
+2025-08-27 00:29:05,773 - INFO - [Model] Wrapped in DDP
+2025-08-27 00:29:05,775 - INFO - [Memory] GPU Allocated: 10.74 MB | GPU Reserved: 24.00 MB | CPU RSS: 1000.54 MB
+2025-08-27 00:29:05,776 - INFO - [Memory] GPU Allocated: 10.74 MB | GPU Reserved: 24.00 MB | CPU RSS: 1001.43 MB
+2025-08-27 00:29:19,479 - INFO - [Epoch 1] Train: 148.3439 | Val: loss 157.5805 | med|ΔE|/E 0.9702 | RMSE(ΔE/E) 0.9527 | Time = 13.7s
+2025-08-27 00:29:31,989 - INFO - [Epoch 2] Train: 124.6959 | Val: loss 118.7282 | med|ΔE|/E 0.8209 | RMSE(ΔE/E) 0.7484 | Time = 12.3s
+2025-08-27 00:29:44,203 - INFO - [Epoch 3] Train: 80.3570 | Val: loss 49.5984 | med|ΔE|/E 0.4754 | RMSE(ΔE/E) 0.8413 | Time = 12.0s
+2025-08-27 00:29:56,588 - INFO - [Epoch 4] Train: 38.9302 | Val: loss 32.9689 | med|ΔE|/E 0.2457 | RMSE(ΔE/E) 1.6943 | Time = 12.2s
+2025-08-27 00:30:08,852 - INFO - [Epoch 5] Train: 32.2027 | Val: loss 27.7929 | med|ΔE|/E 0.3470 | RMSE(ΔE/E) 1.1006 | Time = 12.0s
+2025-08-27 00:30:20,918 - INFO - [Epoch 6] Train: 21.3661 | Val: loss 18.5727 | med|ΔE|/E 0.2575 | RMSE(ΔE/E) 0.6860 | Time = 11.9s
+2025-08-27 00:30:33,175 - INFO - [Epoch 7] Train: 17.6237 | Val: loss 15.7377 | med|ΔE|/E 0.1982 | RMSE(ΔE/E) 0.5848 | Time = 12.1s
+2025-08-27 00:30:45,466 - INFO - [Epoch 8] Train: 16.2667 | Val: loss 15.9178 | med|ΔE|/E 0.2354 | RMSE(ΔE/E) 0.5508 | Time = 12.1s
+2025-08-27 00:30:57,691 - INFO - [Epoch 9] Train: 15.7560 | Val: loss 15.5062 | med|ΔE|/E 0.2766 | RMSE(ΔE/E) 0.8392 | Time = 12.1s
+2025-08-27 00:31:10,060 - INFO - [Epoch 10] Train: 17.8914 | Val: loss 16.6312 | med|ΔE|/E 0.2770 | RMSE(ΔE/E) 0.5501 | Time = 12.2s
+2025-08-27 00:31:22,224 - INFO - [Epoch 11] Train: 14.7349 | Val: loss 14.3368 | med|ΔE|/E 0.2186 | RMSE(ΔE/E) 0.4888 | Time = 12.0s
+2025-08-27 00:31:34,400 - INFO - [Epoch 12] Train: 16.1743 | Val: loss 13.4352 | med|ΔE|/E 0.2172 | RMSE(ΔE/E) 0.5313 | Time = 12.0s
+2025-08-27 00:31:46,639 - INFO - [Epoch 13] Train: 14.0537 | Val: loss 15.9019 | med|ΔE|/E 0.2213 | RMSE(ΔE/E) 0.4183 | Time = 12.0s
+2025-08-27 00:31:58,799 - INFO - [Epoch 14] Train: 12.7228 | Val: loss 14.6408 | med|ΔE|/E 0.3068 | RMSE(ΔE/E) 0.6906 | Time = 12.0s
+2025-08-27 00:32:10,816 - INFO - [Epoch 15] Train: 16.2966 | Val: loss 13.7828 | med|ΔE|/E 0.2206 | RMSE(ΔE/E) 0.4713 | Time = 11.9s
+2025-08-27 00:32:22,859 - INFO - [Epoch 16] Train: 13.7585 | Val: loss 13.1420 | med|ΔE|/E 0.2060 | RMSE(ΔE/E) 0.5175 | Time = 11.9s
+2025-08-27 00:32:35,270 - INFO - [Epoch 17] Train: 15.4449 | Val: loss 12.7263 | med|ΔE|/E 0.2632 | RMSE(ΔE/E) 0.5933 | Time = 12.2s
+2025-08-27 00:32:47,501 - INFO - [Epoch 18] Train: 12.3659 | Val: loss 12.0790 | med|ΔE|/E 0.2093 | RMSE(ΔE/E) 0.5135 | Time = 12.0s
+2025-08-27 00:32:59,587 - INFO - [Epoch 19] Train: 13.3768 | Val: loss 13.4052 | med|ΔE|/E 0.2246 | RMSE(ΔE/E) 0.4796 | Time = 11.9s
+2025-08-27 00:33:11,725 - INFO - [Epoch 20] Train: 15.2200 | Val: loss 13.0007 | med|ΔE|/E 0.2699 | RMSE(ΔE/E) 0.6655 | Time = 12.0s
+2025-08-27 00:33:23,879 - INFO - [Epoch 21] Train: 15.2269 | Val: loss 10.5975 | med|ΔE|/E 0.1957 | RMSE(ΔE/E) 0.3642 | Time = 12.0s
+2025-08-27 00:33:36,235 - INFO - [Epoch 22] Train: 12.3352 | Val: loss 9.4178 | med|ΔE|/E 0.1661 | RMSE(ΔE/E) 0.4248 | Time = 12.2s
+2025-08-27 00:33:48,466 - INFO - [Epoch 23] Train: 10.7065 | Val: loss 7.9243 | med|ΔE|/E 0.1530 | RMSE(ΔE/E) 0.3559 | Time = 12.0s
+2025-08-27 00:34:00,755 - INFO - [Epoch 24] Train: 8.9285 | Val: loss 8.5897 | med|ΔE|/E 0.1874 | RMSE(ΔE/E) 0.3494 | Time = 12.1s
+2025-08-27 00:34:13,006 - INFO - [Epoch 25] Train: 8.9464 | Val: loss 8.3454 | med|ΔE|/E 0.1666 | RMSE(ΔE/E) 0.3858 | Time = 12.1s
+2025-08-27 00:34:25,111 - INFO - [Epoch 26] Train: 10.7218 | Val: loss 8.1379 | med|ΔE|/E 0.1778 | RMSE(ΔE/E) 0.3293 | Time = 12.0s
+2025-08-27 00:34:37,105 - INFO - [Epoch 27] Train: 8.9861 | Val: loss 7.1928 | med|ΔE|/E 0.1526 | RMSE(ΔE/E) 0.3892 | Time = 11.9s
+2025-08-27 00:34:49,173 - INFO - [Epoch 28] Train: 9.5729 | Val: loss 6.8273 | med|ΔE|/E 0.1625 | RMSE(ΔE/E) 0.3375 | Time = 11.9s
+2025-08-27 00:35:01,176 - INFO - [Epoch 29] Train: 8.9168 | Val: loss 7.3179 | med|ΔE|/E 0.1637 | RMSE(ΔE/E) 0.3843 | Time = 11.8s
+2025-08-27 00:35:13,096 - INFO - [Epoch 30] Train: 12.6323 | Val: loss 9.1432 | med|ΔE|/E 0.1869 | RMSE(ΔE/E) 0.4250 | Time = 11.8s
+2025-08-27 00:35:25,227 - INFO - [Epoch 31] Train: 10.9671 | Val: loss 8.0566 | med|ΔE|/E 0.1353 | RMSE(ΔE/E) 0.4019 | Time = 12.0s
+2025-08-27 00:35:37,308 - INFO - [Epoch 32] Train: 7.4440 | Val: loss 8.0639 | med|ΔE|/E 0.1680 | RMSE(ΔE/E) 0.4007 | Time = 11.9s
+2025-08-27 00:35:49,438 - INFO - [Epoch 33] Train: 9.0047 | Val: loss 7.0670 | med|ΔE|/E 0.1502 | RMSE(ΔE/E) 0.3283 | Time = 12.0s
+2025-08-27 00:36:01,925 - INFO - [Epoch 34] Train: 7.6170 | Val: loss 9.8176 | med|ΔE|/E 0.1107 | RMSE(ΔE/E) 0.3344 | Time = 12.2s
+2025-08-27 00:36:14,088 - INFO - [Epoch 35] Train: 9.3514 | Val: loss 8.8813 | med|ΔE|/E 0.1303 | RMSE(ΔE/E) 0.3436 | Time = 12.0s
+2025-08-27 00:36:26,184 - INFO - [Epoch 36] Train: 8.2760 | Val: loss 9.4381 | med|ΔE|/E 0.1050 | RMSE(ΔE/E) 0.3266 | Time = 12.0s
+2025-08-27 00:36:38,180 - INFO - [Epoch 37] Train: 6.1468 | Val: loss 8.6342 | med|ΔE|/E 0.1292 | RMSE(ΔE/E) 0.3372 | Time = 11.9s
+2025-08-27 00:36:50,249 - INFO - [Epoch 38] Train: 9.5783 | Val: loss 10.0988 | med|ΔE|/E 0.1214 | RMSE(ΔE/E) 0.3197 | Time = 11.9s
+2025-08-27 00:36:50,380 - INFO - Early stopping triggered.
+2025-08-27 00:36:50,380 - INFO - [Device] cuda:0 | Total GPU Memory Used: 49082.88 MB
+2025-08-27 00:36:50,381 - INFO - [Post] Plotting Input Data
+2025-08-27 00:36:52,546 - INFO - [Post] Saving to CSV
+2025-08-27 00:36:52,547 - INFO - [Post] Plotting Losses
+[rank 0] reached postprocessing barrier
+[rank0]: Traceback (most recent call last):
+[rank0]:   File "/user/ljones/GNNs-for-JUNO/utils/train_multi_gpu_regress.py", line 509, in <module>
+[rank0]:     main()
+[rank0]:   File "/user/ljones/GNNs-for-JUNO/utils/train_multi_gpu_regress.py", line 504, in main
+[rank0]:     dist.barrier()
+[rank0]:   File "/user/ljones/.gnn_juno/lib64/python3.9/site-packages/torch/distributed/c10d_logger.py", line 81, in wrapper
+[rank0]:     return func(*args, **kwargs)
+[rank0]:   File "/user/ljones/.gnn_juno/lib64/python3.9/site-packages/torch/distributed/distributed_c10d.py", line 4635, in barrier
+[rank0]:     work = group.barrier(opts=opts)
+[rank0]: RuntimeError: Detected mismatch between collectives on ranks. Rank 0 is running collective: CollectiveFingerPrint(SequenceNumber=1376OpType=BARRIER), but Rank 1 is running collective: CollectiveFingerPrint(SequenceNumber=0OpType=GATHER).Collectives differ in the following aspects: 	 Sequence number: 1376vs 0  Op type: BARRIERvs GATHER
+[rank1]: Traceback (most recent call last):
+[rank1]:   File "/user/ljones/GNNs-for-JUNO/utils/train_multi_gpu_regress.py", line 509, in <module>
+[rank1]:     main()
+[rank1]:   File "/user/ljones/GNNs-for-JUNO/utils/train_multi_gpu_regress.py", line 441, in main
+[rank1]:     train_total = train_epoch(model, train_loader, loss_fn, optimizer, device, device_type, scaler)
+[rank1]:   File "/user/ljones/GNNs-for-JUNO/utils/train_multi_gpu_regress.py", line 176, in train_epoch
+[rank1]:     scaler.scale(loss).backward()
+[rank1]:   File "/user/ljones/.gnn_juno/lib64/python3.9/site-packages/torch/_tensor.py", line 648, in backward
+[rank1]:     torch.autograd.backward(
+[rank1]:   File "/user/ljones/.gnn_juno/lib64/python3.9/site-packages/torch/autograd/__init__.py", line 353, in backward
+[rank1]:     _engine_run_backward(
+[rank1]:   File "/user/ljones/.gnn_juno/lib64/python3.9/site-packages/torch/autograd/graph.py", line 824, in _engine_run_backward
+[rank1]:     return Variable._execution_engine.run_backward(  # Calls into the C++ engine to run the backward pass
+[rank1]: RuntimeError: Detected mismatch between collectives on ranks. Rank 1 is running collective: CollectiveFingerPrint(SequenceNumber=1376, OpType=ALLREDUCE, TensorShape=[266766], TensorDtypes=Float, TensorDeviceTypes=TensorOptions(dtype=float (default), device=cuda, layout=Strided (default), requires_grad=false (default), pinned_memory=false (default), memory_format=(nullopt))), but Rank 0 is running collective: CollectiveFingerPrint(SequenceNumber=0OpType=REDUCE).Collectives differ in the following aspects: 	 Sequence number: 1376vs 0  Op type: ALLREDUCEvs REDUCE  Tensor Tensor shapes: 266766vs   Tensor Tensor dtypes: Floatvs   Tensor Tensor devices: TensorOptions(dtype=float (default), device=cuda, layout=Strided (default), requires_grad=false (default), pinned_memory=false (default), memory_format=(nullopt))vs 
+[rank0]:[W827 00:36:53.043023445 ProcessGroupNCCL.cpp:1479] Warning: WARNING: destroy_process_group() was not called before program exit, which can leak resources. For more info, please see https://pytorch.org/docs/stable/distributed.html#shutdown (function operator())
+W0827 00:36:54.529035 2251565 torch/distributed/elastic/multiprocessing/api.py:900] Sending process 2251675 closing signal SIGTERM
+E0827 00:36:55.044916 2251565 torch/distributed/elastic/multiprocessing/api.py:874] failed (exitcode: 1) local_rank: 0 (pid: 2251674) of binary: /user/ljones/.gnn_juno/bin/python
+Traceback (most recent call last):
+  File "/user/ljones/.gnn_juno/bin/torchrun", line 8, in <module>
+    sys.exit(main())
+  File "/user/ljones/.gnn_juno/lib64/python3.9/site-packages/torch/distributed/elastic/multiprocessing/errors/__init__.py", line 355, in wrapper
+    return f(*args, **kwargs)
+  File "/user/ljones/.gnn_juno/lib64/python3.9/site-packages/torch/distributed/run.py", line 892, in main
+    run(args)
+  File "/user/ljones/.gnn_juno/lib64/python3.9/site-packages/torch/distributed/run.py", line 883, in run
+    elastic_launch(
+  File "/user/ljones/.gnn_juno/lib64/python3.9/site-packages/torch/distributed/launcher/api.py", line 139, in __call__
+    return launch_agent(self._config, self._entrypoint, list(args))
+  File "/user/ljones/.gnn_juno/lib64/python3.9/site-packages/torch/distributed/launcher/api.py", line 270, in launch_agent
+    raise ChildFailedError(
+torch.distributed.elastic.multiprocessing.errors.ChildFailedError: 
+============================================================
+utils/train_multi_gpu_regress.py FAILED
+------------------------------------------------------------
+Failures:
+  <NO_OTHER_FAILURES>
+------------------------------------------------------------
+Root Cause (first observed failure):
+[0]:
+  time      : 2025-08-27_00:36:54
+  host      : alpha.ph.liv.ac.uk
+  rank      : 0 (local_rank: 0)
+  exitcode  : 1 (pid: 2251674)
+  error_file: <N/A>
+  traceback : To enable traceback see: https://pytorch.org/docs/stable/elastic/errors.html
+============================================================
+=== Job ended at Wed 27 Aug 00:36:55 BST 2025 ===

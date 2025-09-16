@@ -5,6 +5,8 @@ import yaml
 import glob
 import numpy as np
 import matplotlib.pyplot as plt
+from matplotlib.colors import LogNorm
+from matplotlib.ticker import LogFormatter, AutoMinorLocator
 from sklearn.metrics import mean_squared_error, r2_score
 from scipy.stats import norm
 
@@ -66,9 +68,9 @@ def evaluate(model, loader, device):
         for batch in loader:
             batch = batch.to(device)
             preds = model(batch.x, batch.pos, batch.edge_index, batch.batch)
-            preds_all.append(preds.cpu().numpy())
-            targets_all.append(batch.y.cpu().numpy())
-            energy.append(batch.energy.cpu().numpy())
+            preds_all.append(preds.cpu().numpy().reshape(-1))
+            targets_all.append(batch.y.cpu().numpy().reshape(-1))
+            energy.append(batch.energy.cpu().numpy().reshape(-1))
 
     preds_all = np.concatenate(preds_all)
     targets_all = np.concatenate(targets_all)
@@ -81,17 +83,19 @@ def evaluate(model, loader, device):
 def plot_predictions(y_pred, y_true, name="Energy", units="GeV", plot_dir="plots"):
     os.makedirs(plot_dir, exist_ok=True)
 
-    # 2D Histogram: True vs Predicted
-    plt.figure(figsize=(16, 10))
-    plt.hist2d(y_true, y_pred, bins=20, cmap='viridis')
-    plt.plot([y_true.min(), y_true.max()], [y_true.min(), y_true.max()], 'r--')
-    plt.xlabel(f"True {name} ({units})")
-    plt.ylabel(f"Predicted {name} ({units})")
-    plt.title(f"2D Histogram: Predicted vs. True {name}")
-    plt.colorbar(label='Count')
-    plt.grid(True)
-    plt.savefig(f"{plot_dir}/pred_vs_true_{name}.pdf")
-    plt.clf()
+    plt.rcParams.update({
+    "font.family": "serif",       
+    "font.serif": ["DejaVu Serif"],  
+    "mathtext.fontset": "stix",
+    "font.size": 15,       
+    # "axes.titlesize": 16,   
+    "axes.labelsize": 18,   
+    "axes.linewidth": 2,
+    # "xtick.labelsize": 12, 
+    # "ytick.labelsize": 12,  
+    # "legend.fontsize": 12,  
+    # "figure.titlesize": 18 
+    })  
 
     # Differences PDF
     residuals = y_true - y_pred
@@ -105,6 +109,9 @@ def plot_predictions(y_pred, y_true, name="Energy", units="GeV", plot_dir="plots
     plt.xlabel(f"{name} True - Predicted ({units})")
     plt.ylabel("Probability Density")
     plt.title(f"Residual Distribution ({name})")
+    plt.minorticks_on()
+    plt.tick_params(axis='both', which='major', direction='in', length=10)
+    plt.tick_params(axis='both', which='minor', direction='in', length=5) 
     plt.text(
         0.95, 0.95,
         f"μ = {mu:.2f}\nσ = {sigma:.2f}",
@@ -115,6 +122,49 @@ def plot_predictions(y_pred, y_true, name="Energy", units="GeV", plot_dir="plots
     )
     plt.grid(True)
     plt.savefig(f"{plot_dir}/residuals_{name}.pdf")
+    plt.clf()
+
+    # 2D Histogram: True vs Predicted
+    plt.figure(figsize=(10, 8))
+
+    # make a copy of the colormap and set "bad" (masked values) to white
+    cmap = plt.cm.viridis.copy()
+    cmap.set_bad(color='white')
+
+    # call hist2d, but mask zeros afterward
+    h, xedges, yedges, img = plt.hist2d(y_true, y_pred,
+    bins=100,                # finer binning
+    cmap='viridis',
+    norm=LogNorm()
+    )
+
+    # set zero-count bins to NaN so they render as "bad"
+    hmasked = np.ma.masked_where(h == 0, h)
+    plt.clf()
+    plt.figure(figsize=(8, 6))
+    plt.pcolormesh(xedges, yedges, hmasked.T, norm=LogNorm(), cmap=cmap)
+
+    plt.plot([0, 20],
+            [0, 20], 'r--')
+    plt.xlabel(r"$E_{\nu , true}$ (GeV)")
+    plt.ylabel(r"$E_{\nu , pred}$ (GeV)")
+    plt.xlim([0,20])
+    plt.ylim([0,20])
+    plt.xticks([0, 5, 10, 15, 20])     # only show specific x values
+    plt.yticks([0, 5, 10, 15, 20])  
+    plt.minorticks_on()
+    plt.tick_params(axis='both', which='major', direction='in', length=10)
+    plt.tick_params(axis='both', which='minor', direction='in', length=5)    
+    # plt.title(f"2D Histogram: Predicted vs. True {name}")
+    cbar = plt.colorbar()
+    cbar.set_ticks([1, 10, 100])
+    # cbar.minorticks_on()
+    # cbar.ax.yaxis.set_minor_locator(AutoMinorLocator())
+    cbar.ax.set_yticklabels([r"$10^{0}$", r"$10^{1}$", r"$10^{2}$"])
+    plt.text(x=0.07, y=0.81, s=r'$\nu_{\mu}-like$:'f"\n"r"$\sigma_{E}$"f" = {sigma:.2f} GeV\n"r"$R^2$"f" = {r2_score(y_true, y_pred):.2f}", transform=plt.gca().transAxes)
+    plt.grid(True, color="gray", alpha=0.3, linestyle="--", linewidth=0.5)
+    plt.tight_layout()
+    plt.savefig(f"{plot_dir}/pred_vs_true_{name}.pdf")
     plt.clf()
 
 def plot_predictions_by_energy_bin(y_pred, y_true, energy_true, bins, name="Energy", units="MeV", plot_dir="plots"):
@@ -138,21 +188,31 @@ def plot_predictions_by_energy_bin(y_pred, y_true, energy_true, bins, name="Ener
 
         x = np.linspace((mu - sigma*5), (mu + sigma*5), 1000)
 
-        plt.figure(figsize=(16, 10))
-        plt.hist(residuals, bins=100, density=True, color='red', alpha=0.7)
-        plt.plot(x, norm.pdf(x, mu, sigma), color='blue')
-        plt.xlabel(f"{name} True - Predicted ({units})")
-        plt.ylabel("Probability Density")
-        plt.title(f"{name} Residuals ({bin_label})")
+        if np.abs(np.min(x)) < np.abs(np.max(x)):
+            limit = np.abs(np.max(x))
+        else:
+            limit = np.abs(np.min(x))
+
+        plt.figure(figsize=(10, 8))
+        plt.hist(residuals, bins=50, density=True, histtype='stepfilled', facecolor="red", alpha=0.3, edgecolor="red", linewidth=2.5)
+        plt.plot(x, norm.pdf(x, mu, sigma), color='blue', linewidth=2.5)
+        plt.xlabel(r"$E_{(\nu, pred)} - E_{(\nu, true)} / E_{(\nu, true)}$")
+        plt.ylabel("P.D.F.")
+        plt.xlim([-limit, limit])
+        plt.minorticks_on()
+        plt.tick_params(axis='both', which='major', direction='in', length=10)
+        plt.tick_params(axis='both', which='minor', direction='in', length=5) 
+        plt.title(f"{bin_label}")
         plt.text(
             0.95, 0.95,
             f"μ = {mu:.2f}\nσ = {sigma:.2f}",
             transform=plt.gca().transAxes,
             ha='right', va='top',
-            fontsize=12,
+            fontsize=15,
             bbox=dict(facecolor='white', alpha=0.8)
         )
-        plt.grid(True)
+        plt.grid(True, color="gray", alpha=0.3, linestyle="--", linewidth=0.5)
+        plt.tight_layout()
         plt.savefig(f"{plot_dir}/residuals_{i}.pdf")
         plt.clf()
 
@@ -171,7 +231,7 @@ def main():
     graph = torch.load(cfg['graph'])
     stats = load_stats(cfg['stats'])
     output_dir = cfg['output']
-    model_path = os.path.join(output_dir, "snapshots/regress/nu_e_like/energy/epoch_53_snapshot.pth")
+    model_path = os.path.join(output_dir, "snapshots/regress/nu_mu_like/energy/attention/best.pth")
 
     batch_size = cfg['training']['batch_size']
     latent_dim = cfg['training']['latent_dim']
@@ -207,8 +267,8 @@ def main():
     energy_bins = np.linspace(1, 20, 20)
 
     logger.info(f"Evaluation MSE: {mse:.4f}, R2: {r2:.4f}")
-    plot_predictions(preds, targets, plot_dir=os.path.join(output_dir, "plots"))
-    plot_predictions_by_energy_bin(preds, targets, energy, bins=energy_bins, units='GeV', plot_dir=os.path.join(output_dir, "plots/nu_e/energy"))
+    plot_predictions(preds, targets, plot_dir=os.path.join(output_dir, "plots/nu_mu/energy/attention"))
+    plot_predictions_by_energy_bin(preds, targets, energy, bins=energy_bins, units='GeV', plot_dir=os.path.join(output_dir, "plots/nu_mu/energy/attention"))
 
 if __name__ == "__main__":
     main()

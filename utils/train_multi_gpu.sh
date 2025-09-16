@@ -12,7 +12,7 @@ source /user/ljones/.gnn_juno/bin/activate
 export NETWORKX_NO_BACKENDS=1
 export PYTORCH_CUDA_ALLOC_CONF=expandable_segments:True
 
-export CUDA_VISIBLE_DEVICES=1,3
+export CUDA_VISIBLE_DEVICES=1,5
 export CUDA_LAUNCH_BLOCKING=1
 export TORCH_DISTRIBUTED_DEBUG=DETAIL
 export TORCH_NCCL_ASYNC_ERROR_HANDLING=1
@@ -29,9 +29,9 @@ cd /user/ljones/GNNs-for-JUNO
     echo "=== Job started at $(date) ==="
     echo "=== Running on host: $(hostname) ==="
     echo "=== CUDA_VISIBLE_DEVICES: $CUDA_VISIBLE_DEVICES ==="
-    torchrun --nproc_per_node=2 utils/train_multi_gpu_regress.py --config utils/config.yaml
+    torchrun --nproc_per_node=2 --master_port=29501 utils/train_multi_gpu_regress.py --config utils/config.yaml
     echo "=== Job ended at $(date) ==="
-} &> utils/job_logs/train_multi_gpu_energy_nu_e.txt
+} &> utils/job_logs/train_multi_gpu_energy_test.txt
 
 # nvidia-smi | grep -E '[0-9]+[ ]+C' | awk '{print $5}' | xargs -I{} ps -o user= -p {} <- Check users
 # ps -p 3840646 -o lstart= <- when their job started

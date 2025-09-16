@@ -1,0 +1,47 @@
+=== Job started at Thu 11 Sep 10:31:33 BST 2025 ===
+=== Running on host: alpha.ph.liv.ac.uk ===
+=== CUDA_VISIBLE_DEVICES: 1,5 ===
+W0911 10:31:34.728843 1773497 torch/distributed/run.py:766] 
+W0911 10:31:34.728843 1773497 torch/distributed/run.py:766] *****************************************
+W0911 10:31:34.728843 1773497 torch/distributed/run.py:766] Setting OMP_NUM_THREADS environment variable for each process to be 1 in default, to avoid your system being overloaded, please further tune the variable for optimal performance in your application as needed. 
+W0911 10:31:34.728843 1773497 torch/distributed/run.py:766] *****************************************
+/user/ljones/.gnn_juno/lib64/python3.9/site-packages/networkx/utils/backends.py:135: RuntimeWarning: networkx backend defined more than once: nx-loopback
+  backends.update(_get_backends("networkx.backends"))
+/user/ljones/.gnn_juno/lib64/python3.9/site-packages/networkx/utils/backends.py:135: RuntimeWarning: networkx backend defined more than once: nx-loopback
+  backends.update(_get_backends("networkx.backends"))
+2025-09-11 10:31:38,954 - INFO - [Device] cuda:0 | Total GPU Memory: 81155.75 MB | Memory Allocated 0.0 MB
+2025-09-11 10:31:38,955 - INFO - [Device] cuda:1 | Total GPU Memory: 81155.75 MB | Memory Allocated 0.0 MB
+2025-09-11 10:31:38,967 - INFO - [Data] train batch: 9 | validation batch: 2
+2025-09-11 10:31:38,967 - INFO - [Data] train batch: 9 | validation batch: 2
+2025-09-11 10:31:38,967 - INFO - [Data] train evt size: 312 | validation evt size: 78
+2025-09-11 10:31:38,967 - INFO - [Data] train evt size: 312 | validation evt size: 78
+/user/ljones/.gnn_juno/lib64/python3.9/site-packages/torch_geometric/deprecation.py:26: UserWarning: 'nn.glob.GlobalAttention' is deprecated, use 'nn.aggr.AttentionalAggregation' instead
+  warnings.warn(out)
+/user/ljones/.gnn_juno/lib64/python3.9/site-packages/torch_geometric/deprecation.py:26: UserWarning: 'nn.glob.GlobalAttention' is deprecated, use 'nn.aggr.AttentionalAggregation' instead
+  warnings.warn(out)
+/user/ljones/.gnn_juno/lib64/python3.9/site-packages/torch/distributed/distributed_c10d.py:4631: UserWarning: No device id is provided via `init_process_group` or `barrier `. Using the current device set by the user. 
+  warnings.warn(  # warn only once
+/user/ljones/.gnn_juno/lib64/python3.9/site-packages/torch/distributed/distributed_c10d.py:4631: UserWarning: No device id is provided via `init_process_group` or `barrier `. Using the current device set by the user. 
+  warnings.warn(  # warn only once
+[rank0]:[W911 10:31:39.179805547 ProcessGroupNCCL.cpp:4718] [PG ID 0 PG GUID 0 Rank 0]  using GPU 0 as device used by this process is currently unknown. This can potentially cause a hang if this rank to GPU mapping is incorrect. You can pecify device_id in init_process_group() to force use of a particular device.
+[rank1]:[W911 10:31:39.179804647 ProcessGroupNCCL.cpp:4718] [PG ID 0 PG GUID 0 Rank 1]  using GPU 1 as device used by this process is currently unknown. This can potentially cause a hang if this rank to GPU mapping is incorrect. You can pecify device_id in init_process_group() to force use of a particular device.
+2025-09-11 10:31:39,437 - INFO - [Model] Wrapped in DDP
+2025-09-11 10:31:39,437 - INFO - [Model] Wrapped in DDP
+2025-09-11 10:31:39,439 - INFO - [Memory] GPU Allocated: 10.74 MB | GPU Reserved: 24.00 MB | CPU RSS: 1017.81 MB
+2025-09-11 10:31:39,439 - INFO - [Memory] GPU Allocated: 10.74 MB | GPU Reserved: 24.00 MB | CPU RSS: 1021.40 MB
+2025-09-11 10:31:54,206 - INFO - [Epoch 1] Train: 117.1280 | Val: loss 152.4086 | med|ΔE|/E 0.9783 | RMSE(ΔE/E) 0.9564 | Time = 14.8s
+2025-09-11 10:32:07,455 - INFO - [Epoch 2] Train: 108.1394 | Val: loss 122.3016 | med|ΔE|/E 0.8542 | RMSE(ΔE/E) 0.7998 | Time = 13.0s
+2025-09-11 10:32:19,908 - INFO - [Epoch 3] Train: 71.2799 | Val: loss 62.1157 | med|ΔE|/E 0.6134 | RMSE(ΔE/E) 1.2745 | Time = 12.3s
+2025-09-11 10:32:32,450 - INFO - [Epoch 4] Train: 36.0844 | Val: loss 31.8897 | med|ΔE|/E 0.2433 | RMSE(ΔE/E) 3.0160 | Time = 12.4s
+2025-09-11 10:32:44,683 - INFO - [Epoch 5] Train: 33.7135 | Val: loss 32.3067 | med|ΔE|/E 0.3799 | RMSE(ΔE/E) 2.1643 | Time = 12.1s
+2025-09-11 10:32:44,699 - INFO - [Device] cuda:1 | Total GPU Memory Used: 49274.88 MB
+[rank 1] reached postprocessing barrier
+2025-09-11 10:32:44,803 - INFO - [Device] cuda:0 | Total GPU Memory Used: 49202.88 MB
+2025-09-11 10:32:44,804 - INFO - [Post] Plotting Input Data
+2025-09-11 10:32:51,741 - INFO - [Post] Saving to CSV
+2025-09-11 10:32:51,742 - INFO - [Post] Plotting Losses
+[rank 0] reached postprocessing barrier
+[rank 0] tearing down DDP
+[rank 1] tearing down DDP
+[W911 10:32:55.659501188 ProcessGroupNCCL.cpp:1479] Warning: WARNING: destroy_process_group() was not called before program exit, which can leak resources. For more info, please see https://pytorch.org/docs/stable/distributed.html#shutdown (function operator())
+=== Job ended at Thu 11 Sep 10:32:58 BST 2025 ===
