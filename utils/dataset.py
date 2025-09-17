@@ -348,10 +348,11 @@ class EGNNJUNODataset(Dataset):
         return Data(x=x, pos=pos, edge_index=edge_index, y=label_tensor)
 
 class EGNNMultiJUNODataset(Dataset):
-    def __init__(self, file_paths, edge_index, pos, limit_per_file=None, preload=False, device='cpu', stats=None, target=None, class_type=None):
+    def __init__(self, file_paths, edge_index, pos, sh=None, limit_per_file=None, preload=False, device='cpu', stats=None, target=None, class_type=None):
         self.file_paths = sorted(file_paths)
         self.edge_index = edge_index.to(device)
         self.pos = pos.detach().clone().float()
+        self.sh  = sh
         self.limit = limit_per_file
         self.device = device
         self.preload = preload
@@ -447,6 +448,9 @@ class EGNNMultiJUNODataset(Dataset):
         slope = (slope - self.npe_mean) / self.slope_std
         nperatio = (nperatio - self.nperatio_mean)/ self.nperatio_std
         features = np.stack((npe, fht, slope, nperatio), axis=1)
+
+        if len(self.sh) > 0:
+            features = np.concatenate((features, self.sh.astype(np.float32)), axis=1)
 
         x = torch.tensor(features, dtype=torch.float32)
         # x = torch.cat([x, torch.zeros(1, x.size(1))], dim=0)

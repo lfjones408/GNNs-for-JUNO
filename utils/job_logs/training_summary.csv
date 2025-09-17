@@ -126,3 +126,4 @@ Date/Time,Input,Batch Size,Learning Rate,Latent Dim,Hidden Dim,Num Epochs,Num Wo
 2025-08-27 15:58:55,training_files_nu_e.txt,16,0.001,64,64,100,6,regression,energy,29124,7281,937.21,67324.25,3719.62
 2025-09-11 10:26:03,evaluation_files_nu_mu.txt,16,0.001,64,64,5,6,regression,energy,312,78,11.47,67438.21,3172.69
 2025-09-11 10:32:51,evaluation_files_nu_mu.txt,16,0.001,64,64,5,6,regression,energy,312,78,12.9,47238.53,3327.82
+2025-09-17 12:06:37,evaluation_files_nu_mu.txt,10,0.001,64,64,5,6,regression,energy,312,78,13.48,30106.45,3202.72

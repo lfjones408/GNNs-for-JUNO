@@ -61,7 +61,7 @@ def ddp_setup():
         init_method="env://"
     )
 
-def get_dataloaders(h5_path, edge_index, pos, stats, batch_size, val_split=0.2, limit=None, num_workers=2, target=None, class_type=None, preload=False, device='cpu'):
+def get_dataloaders(h5_path, edge_index, pos, stats, batch_size, val_split=0.2, sh=None, limit=None, num_workers=2, target=None, class_type=None, preload=False, device='cpu'):
     if isinstance(h5_path, list):
         file_list = h5_path
     elif os.path.isdir(h5_path):
@@ -76,6 +76,7 @@ def get_dataloaders(h5_path, edge_index, pos, stats, batch_size, val_split=0.2, 
             file_paths=file_list,
             edge_index=edge_index,
             pos=pos,
+            sh=sh,
             stats=stats,
             limit_per_file=limit,
             preload=preload,
@@ -88,6 +89,7 @@ def get_dataloaders(h5_path, edge_index, pos, stats, batch_size, val_split=0.2, 
             h5_path=file_list[0],
             edge_index=edge_index,
             pos=pos,
+            sh=sh,
             stats=stats,
             limit=limit,
             preload=preload,
@@ -339,9 +341,11 @@ def main():
 
     graph = torch.load(cfg['graph'])
     stats = load_stats(cfg['stats'])
+    sh_file = np.load(cfg['sh'])
 
     edge_index = graph['edge_index']
     pos = graph['pmt_positions']
+    sh = sh_file['sh_l3']
     batch_size = cfg['training']['batch_size']
     latent_dim = cfg['training']['latent_dim']
     hidden_dim = cfg['training']['hidden_dim']
@@ -359,7 +363,7 @@ def main():
 
     logger.info(f"[Device] {device} | Total GPU Memory: {torch.cuda.get_device_properties(device).total_memory / (1024 ** 2):.2f} MB | Memory Allocated {torch.cuda.memory_allocated(device) / (1024 ** 2)} MB")
 
-    train_loader, val_loader = get_dataloaders(h5_path=h5_path, edge_index=edge_index, stats=stats, pos=pos, batch_size=batch_size, num_workers=num_workers, limit=limit, target=target, class_type=class_type)
+    train_loader, val_loader = get_dataloaders(h5_path=h5_path, edge_index=edge_index, stats=stats, pos=pos, sh=sh, batch_size=batch_size, num_workers=num_workers, limit=limit, target=target, class_type=class_type)
     logger.info(f"[Data] train batch: {len(train_loader)} | validation batch: {len(val_loader)}")
     logger.info(f"[Data] train evt size: {len(train_loader.dataset)} | validation evt size: {len(val_loader.dataset)}")
 
@@ -367,7 +371,7 @@ def main():
 
     # raw_model = EGNNFlavourClassifier(
     raw_model = EGNNEnergyRegressor(
-        in_features=4,
+        in_features=20,
         hidden_dim=hidden_dim,
         latent_dim=latent_dim,
         pooled_levels=pool_levels

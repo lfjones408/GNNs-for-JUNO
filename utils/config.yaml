@@ -2,10 +2,11 @@ input: evaluation_files_nu_mu.txt
 output: output
 graph: utils/pmt_graph.pt
 stats: utils/norm_stats.npz
+sh: utils/spherical_harmonics.npz
 
 training:
-  epochs: 5
-  batch_size: 16
+  epochs: 10
+  batch_size: 10
   lr: 0.001
   latent_dim: 64
   hidden_dim: 64
