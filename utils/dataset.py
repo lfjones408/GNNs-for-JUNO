@@ -449,9 +449,6 @@ class EGNNMultiJUNODataset(Dataset):
         nperatio = (nperatio - self.nperatio_mean)/ self.nperatio_std
         features = np.stack((npe, fht, slope, nperatio), axis=1)
 
-        if len(self.sh) > 0:
-            features = np.concatenate((features, self.sh.astype(np.float32)), axis=1)
-
         x = torch.tensor(features, dtype=torch.float32)
         # x = torch.cat([x, torch.zeros(1, x.size(1))], dim=0)
 
@@ -510,7 +507,7 @@ class EGNNMultiJUNODataset(Dataset):
         else:
             raise ValueError('Invalid target.')
 
-        return Data(x=x, pos=pos, edge_index=edge_index, y=y, energy=label_tensor[2], direction=label_tensor[0], raw_npe=raw_npe, raw_fht=raw_fht, flavour=label, vertex=vtx)
+        return Data(x=x, pos=pos, edge_index=edge_index, y=y, sh=self.sh, energy=label_tensor[2], direction=label_tensor[0], raw_npe=raw_npe, raw_fht=raw_fht, flavour=label, vertex=vtx)
 
     def __del__(self):
         for f in self.file_handles:

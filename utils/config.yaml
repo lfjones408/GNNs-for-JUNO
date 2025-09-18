@@ -5,13 +5,13 @@ stats: utils/norm_stats.npz
 sh: utils/spherical_harmonics.npz
 
 training:
-  epochs: 10
-  batch_size: 10
+  epochs: 100
+  batch_size: 16
   lr: 0.001
   latent_dim: 64
   hidden_dim: 64
   patience: 10
-  limit: 10
+  limit: 
   num_workers: 6
   loss: regression
   class_type: 

@@ -1,20 +1,20 @@
-=== Job started at Wed 17 Sep 13:53:48 BST 2025 ===
+=== Job started at Wed 17 Sep 16:38:01 BST 2025 ===
 === Running on host: alpha.ph.liv.ac.uk ===
 === CUDA_VISIBLE_DEVICES: 1,2 ===
-W0917 13:53:50.325354 105862 torch/distributed/run.py:766] 
-W0917 13:53:50.325354 105862 torch/distributed/run.py:766] *****************************************
-W0917 13:53:50.325354 105862 torch/distributed/run.py:766] Setting OMP_NUM_THREADS environment variable for each process to be 1 in default, to avoid your system being overloaded, please further tune the variable for optimal performance in your application as needed. 
-W0917 13:53:50.325354 105862 torch/distributed/run.py:766] *****************************************
+W0917 16:38:03.617687 528184 torch/distributed/run.py:766] 
+W0917 16:38:03.617687 528184 torch/distributed/run.py:766] *****************************************
+W0917 16:38:03.617687 528184 torch/distributed/run.py:766] Setting OMP_NUM_THREADS environment variable for each process to be 1 in default, to avoid your system being overloaded, please further tune the variable for optimal performance in your application as needed. 
+W0917 16:38:03.617687 528184 torch/distributed/run.py:766] *****************************************
 /user/ljones/.gnn_juno/lib64/python3.9/site-packages/networkx/utils/backends.py:135: RuntimeWarning: networkx backend defined more than once: nx-loopback
   backends.update(_get_backends("networkx.backends"))
 /user/ljones/.gnn_juno/lib64/python3.9/site-packages/networkx/utils/backends.py:135: RuntimeWarning: networkx backend defined more than once: nx-loopback
   backends.update(_get_backends("networkx.backends"))
-2025-09-17 13:53:56,990 - INFO - [Device] cuda:0 | Total GPU Memory: 81155.75 MB | Memory Allocated 0.0 MB
-2025-09-17 13:53:56,992 - INFO - [Device] cuda:1 | Total GPU Memory: 81155.75 MB | Memory Allocated 0.0 MB
-2025-09-17 13:53:57,005 - INFO - [Data] train batch: 15 | validation batch: 3
-2025-09-17 13:53:57,005 - INFO - [Data] train evt size: 312 | validation evt size: 78
-2025-09-17 13:53:57,013 - INFO - [Data] train batch: 15 | validation batch: 3
-2025-09-17 13:53:57,013 - INFO - [Data] train evt size: 312 | validation evt size: 78
+2025-09-17 16:38:15,456 - INFO - [Device] cuda:1 | Total GPU Memory: 81155.75 MB | Memory Allocated 0.0 MB
+2025-09-17 16:38:15,457 - INFO - [Device] cuda:0 | Total GPU Memory: 81155.75 MB | Memory Allocated 0.0 MB
+2025-09-17 16:38:15,469 - INFO - [Data] train batch: 9 | validation batch: 2
+2025-09-17 16:38:15,469 - INFO - [Data] train evt size: 312 | validation evt size: 78
+2025-09-17 16:38:15,470 - INFO - [Data] train batch: 9 | validation batch: 2
+2025-09-17 16:38:15,470 - INFO - [Data] train evt size: 312 | validation evt size: 78
 /user/ljones/.gnn_juno/lib64/python3.9/site-packages/torch_geometric/deprecation.py:26: UserWarning: 'nn.glob.GlobalAttention' is deprecated, use 'nn.aggr.AttentionalAggregation' instead
   warnings.warn(out)
 /user/ljones/.gnn_juno/lib64/python3.9/site-packages/torch_geometric/deprecation.py:26: UserWarning: 'nn.glob.GlobalAttention' is deprecated, use 'nn.aggr.AttentionalAggregation' instead
@@ -23,96 +23,40 @@ W0917 13:53:50.325354 105862 torch/distributed/run.py:766] *********************
   warnings.warn(  # warn only once
 /user/ljones/.gnn_juno/lib64/python3.9/site-packages/torch/distributed/distributed_c10d.py:4631: UserWarning: No device id is provided via `init_process_group` or `barrier `. Using the current device set by the user. 
   warnings.warn(  # warn only once
-[rank1]:[W917 13:53:58.431687483 ProcessGroupNCCL.cpp:4718] [PG ID 0 PG GUID 0 Rank 1]  using GPU 1 as device used by this process is currently unknown. This can potentially cause a hang if this rank to GPU mapping is incorrect. You can pecify device_id in init_process_group() to force use of a particular device.
-[rank0]:[W917 13:53:58.431792802 ProcessGroupNCCL.cpp:4718] [PG ID 0 PG GUID 0 Rank 0]  using GPU 0 as device used by this process is currently unknown. This can potentially cause a hang if this rank to GPU mapping is incorrect. You can pecify device_id in init_process_group() to force use of a particular device.
-2025-09-17 13:54:00,254 - INFO - [Model] Wrapped in DDP
-2025-09-17 13:54:00,256 - INFO - [Memory] GPU Allocated: 10.81 MB | GPU Reserved: 24.00 MB | CPU RSS: 1073.44 MB
-2025-09-17 13:54:01,210 - INFO - [Model] Wrapped in DDP
-2025-09-17 13:54:01,213 - INFO - [Memory] GPU Allocated: 10.81 MB | GPU Reserved: 24.00 MB | CPU RSS: 1069.20 MB
-2025-09-17 14:02:43,392 - INFO - [Epoch 1] Train: 115.9516 | Val: loss 134.0997 | med|ΔE|/E 0.8875 | RMSE(ΔE/E) 0.8327 | Time = 523.1s
-2025-09-17 14:12:00,692 - INFO - [Epoch 2] Train: 63.4441 | Val: loss 37.0487 | med|ΔE|/E 0.4264 | RMSE(ΔE/E) 1.4210 | Time = 556.9s
-2025-09-17 14:21:18,083 - INFO - [Epoch 3] Train: 22.4269 | Val: loss 29.9363 | med|ΔE|/E 0.2813 | RMSE(ΔE/E) 1.6226 | Time = 557.1s
-W0917 14:26:04.415926 105862 torch/distributed/elastic/agent/server/api.py:719] Received Signals.SIGINT death signal, shutting down workers
-W0917 14:26:04.419227 105862 torch/distributed/elastic/multiprocessing/api.py:900] Sending process 106014 closing signal SIGINT
-W0917 14:26:04.419719 105862 torch/distributed/elastic/multiprocessing/api.py:900] Sending process 106015 closing signal SIGINT
-[rank1]: Traceback (most recent call last):
-[rank1]:   File "/user/ljones/GNNs-for-JUNO/utils/train_multi_gpu_regress.py", line 513, in <module>
-[rank1]:     main()
-[rank1]:   File "/user/ljones/GNNs-for-JUNO/utils/train_multi_gpu_regress.py", line 445, in main
-[rank1]:     train_total = train_epoch(model, train_loader, loss_fn, optimizer, device, device_type, scaler)
-[rank1]:   File "/user/ljones/GNNs-for-JUNO/utils/train_multi_gpu_regress.py", line 173, in train_epoch
-[rank1]:     pred = model(batch.x, batch.pos, batch.vertex, batch.raw_npe, batch.raw_fht, batch.edge_index, batch.batch)
-[rank1]:   File "/user/ljones/.gnn_juno/lib64/python3.9/site-packages/torch/nn/modules/module.py", line 1751, in _wrapped_call_impl
-[rank1]:     return self._call_impl(*args, **kwargs)
-[rank1]:   File "/user/ljones/.gnn_juno/lib64/python3.9/site-packages/torch/nn/modules/module.py", line 1762, in _call_impl
-[rank1]:     return forward_call(*args, **kwargs)
-[rank1]:   File "/user/ljones/.gnn_juno/lib64/python3.9/site-packages/torch/nn/parallel/distributed.py", line 1637, in forward
-[rank1]:     else self._run_ddp_forward(*inputs, **kwargs)
-[rank1]:   File "/user/ljones/.gnn_juno/lib64/python3.9/site-packages/torch/nn/parallel/distributed.py", line 1464, in _run_ddp_forward
-[rank1]:     return self.module(*inputs, **kwargs)  # type: ignore[index]
-[rank1]:   File "/user/ljones/.gnn_juno/lib64/python3.9/site-packages/torch/nn/modules/module.py", line 1751, in _wrapped_call_impl
-[rank1]:     return self._call_impl(*args, **kwargs)
-[rank1]:   File "/user/ljones/.gnn_juno/lib64/python3.9/site-packages/torch/nn/modules/module.py", line 1762, in _call_impl
-[rank1]:     return forward_call(*args, **kwargs)
-[rank1]:   File "/user/ljones/GNNs-for-JUNO/utils/model.py", line 1223, in forward
-[rank1]:     z = self.encoder(x, pos, vtx, raw_npe, raw_fht, edge_index, batch)
-[rank1]:   File "/user/ljones/.gnn_juno/lib64/python3.9/site-packages/torch/nn/modules/module.py", line 1751, in _wrapped_call_impl
-[rank1]:     return self._call_impl(*args, **kwargs)
-[rank1]:   File "/user/ljones/.gnn_juno/lib64/python3.9/site-packages/torch/nn/modules/module.py", line 1762, in _call_impl
-[rank1]:     return forward_call(*args, **kwargs)
-[rank1]:   File "/user/ljones/GNNs-for-JUNO/utils/model.py", line 1126, in forward
-[rank1]:     _, _, desc = self.token_layer(x, pos, raw_fht, vtx, batch, raw_npe=raw_npe)  # (G,3)
-[rank1]:   File "/user/ljones/.gnn_juno/lib64/python3.9/site-packages/torch/nn/modules/module.py", line 1751, in _wrapped_call_impl
-[rank1]:     return self._call_impl(*args, **kwargs)
-[rank1]:   File "/user/ljones/.gnn_juno/lib64/python3.9/site-packages/torch/nn/modules/module.py", line 1762, in _call_impl
-[rank1]:     return forward_call(*args, **kwargs)
-[rank1]:   File "/user/ljones/GNNs-for-JUNO/utils/model.py", line 916, in forward
-[rank1]:     + (w_q    * torch.log1p(Q))        # (Ng,K)
-[rank1]: KeyboardInterrupt
-[rank0]:[E917 14:26:04.868661938 ProcessGroupGloo.cpp:3027] [Rank 0]: Rank 1 failed to pass monitoredBarrier in 600000 ms
-[rank0]:[E917 14:26:04.868732098 ProcessGroupGloo.cpp:145] [Rank 0]: Ranks 1 failed to pass monitoredBarrier in 600000 ms
-[rank0]: Traceback (most recent call last):
-[rank0]:   File "/user/ljones/.gnn_juno/lib64/python3.9/site-packages/torch/autograd/graph.py", line 824, in _engine_run_backward
-[rank0]:     return Variable._execution_engine.run_backward(  # Calls into the C++ engine to run the backward pass
-[rank0]: RuntimeError: [Rank 0]: Ranks 1 failed to pass monitoredBarrier in 600000 ms
-
-[rank0]: During handling of the above exception, another exception occurred:
-
-[rank0]: Traceback (most recent call last):
-[rank0]:   File "/user/ljones/GNNs-for-JUNO/utils/train_multi_gpu_regress.py", line 513, in <module>
-[rank0]:     main()
-[rank0]:   File "/user/ljones/GNNs-for-JUNO/utils/train_multi_gpu_regress.py", line 445, in main
-[rank0]:     train_total = train_epoch(model, train_loader, loss_fn, optimizer, device, device_type, scaler)
-[rank0]:   File "/user/ljones/GNNs-for-JUNO/utils/train_multi_gpu_regress.py", line 178, in train_epoch
-[rank0]:     scaler.scale(loss).backward()
-[rank0]:   File "/user/ljones/.gnn_juno/lib64/python3.9/site-packages/torch/_tensor.py", line 648, in backward
-[rank0]:     torch.autograd.backward(
-[rank0]:   File "/user/ljones/.gnn_juno/lib64/python3.9/site-packages/torch/autograd/__init__.py", line 353, in backward
-[rank0]:     _engine_run_backward(
-[rank0]:   File "/user/ljones/.gnn_juno/lib64/python3.9/site-packages/torch/autograd/graph.py", line 824, in _engine_run_backward
-[rank0]:     return Variable._execution_engine.run_backward(  # Calls into the C++ engine to run the backward pass
-[rank0]: KeyboardInterrupt
-[rank0]:[W917 14:26:05.211849706 ProcessGroupNCCL.cpp:1479] Warning: WARNING: destroy_process_group() was not called before program exit, which can leak resources. For more info, please see https://pytorch.org/docs/stable/distributed.html#shutdown (function operator())
-Traceback (most recent call last):
-  File "/user/ljones/.gnn_juno/bin/torchrun", line 8, in <module>
-    sys.exit(main())
-  File "/user/ljones/.gnn_juno/lib64/python3.9/site-packages/torch/distributed/elastic/multiprocessing/errors/__init__.py", line 355, in wrapper
-    return f(*args, **kwargs)
-  File "/user/ljones/.gnn_juno/lib64/python3.9/site-packages/torch/distributed/run.py", line 892, in main
-    run(args)
-  File "/user/ljones/.gnn_juno/lib64/python3.9/site-packages/torch/distributed/run.py", line 883, in run
-    elastic_launch(
-  File "/user/ljones/.gnn_juno/lib64/python3.9/site-packages/torch/distributed/launcher/api.py", line 139, in __call__
-    return launch_agent(self._config, self._entrypoint, list(args))
-  File "/user/ljones/.gnn_juno/lib64/python3.9/site-packages/torch/distributed/launcher/api.py", line 261, in launch_agent
-    result = agent.run()
-  File "/user/ljones/.gnn_juno/lib64/python3.9/site-packages/torch/distributed/elastic/metrics/api.py", line 138, in wrapper
-    result = f(*args, **kwargs)
-  File "/user/ljones/.gnn_juno/lib64/python3.9/site-packages/torch/distributed/elastic/agent/server/api.py", line 711, in run
-    result = self._invoke_run(role)
-  File "/user/ljones/.gnn_juno/lib64/python3.9/site-packages/torch/distributed/elastic/agent/server/api.py", line 870, in _invoke_run
-    time.sleep(monitor_interval)
-  File "/user/ljones/.gnn_juno/lib64/python3.9/site-packages/torch/distributed/elastic/multiprocessing/api.py", line 84, in _terminate_process_handler
-    raise SignalException(f"Process {os.getpid()} got signal: {sigval}", sigval=sigval)
-torch.distributed.elastic.multiprocessing.api.SignalException: Process 105862 got signal: 2
-=== Job ended at Wed 17 Sep 14:26:09 BST 2025 ===
+[rank1]:[W917 16:38:16.412148871 ProcessGroupNCCL.cpp:4718] [PG ID 0 PG GUID 0 Rank 1]  using GPU 1 as device used by this process is currently unknown. This can potentially cause a hang if this rank to GPU mapping is incorrect. You can pecify device_id in init_process_group() to force use of a particular device.
+[rank0]:[W917 16:38:16.412202311 ProcessGroupNCCL.cpp:4718] [PG ID 0 PG GUID 0 Rank 0]  using GPU 0 as device used by this process is currently unknown. This can potentially cause a hang if this rank to GPU mapping is incorrect. You can pecify device_id in init_process_group() to force use of a particular device.
+2025-09-17 16:38:18,840 - INFO - [Model] Wrapped in DDP
+2025-09-17 16:38:18,842 - INFO - [Memory] GPU Allocated: 12.90 MB | GPU Reserved: 24.00 MB | CPU RSS: 1072.12 MB
+2025-09-17 16:38:19,800 - INFO - [Model] Wrapped in DDP
+2025-09-17 16:38:19,803 - INFO - [Memory] GPU Allocated: 12.90 MB | GPU Reserved: 24.00 MB | CPU RSS: 1071.55 MB
+2025-09-17 16:45:15,164 - INFO - [Epoch 1] Train: 114.7158 | Val: loss 149.2714 | med|ΔE|/E 0.9665 | RMSE(ΔE/E) 0.9367 | Time = 416.3s
+2025-09-17 16:52:40,970 - INFO - [Epoch 2] Train: 104.2044 | Val: loss 114.8268 | med|ΔE|/E 0.8315 | RMSE(ΔE/E) 0.7927 | Time = 445.6s
+2025-09-17 17:00:06,712 - INFO - [Epoch 3] Train: 63.6144 | Val: loss 46.4101 | med|ΔE|/E 0.5189 | RMSE(ΔE/E) 1.6548 | Time = 445.6s
+2025-09-17 17:07:32,814 - INFO - [Epoch 4] Train: 37.2186 | Val: loss 35.7532 | med|ΔE|/E 0.2448 | RMSE(ΔE/E) 3.3104 | Time = 445.9s
+2025-09-17 17:14:58,562 - INFO - [Epoch 5] Train: 33.8456 | Val: loss 35.4875 | med|ΔE|/E 0.4195 | RMSE(ΔE/E) 2.0319 | Time = 445.6s
+2025-09-17 17:22:24,474 - INFO - [Epoch 6] Train: 37.5880 | Val: loss 32.3096 | med|ΔE|/E 0.3922 | RMSE(ΔE/E) 2.0406 | Time = 445.7s
+2025-09-17 17:29:50,333 - INFO - [Epoch 7] Train: 26.6214 | Val: loss 27.4399 | med|ΔE|/E 0.2935 | RMSE(ΔE/E) 2.5064 | Time = 445.7s
+2025-09-17 17:37:15,970 - INFO - [Epoch 8] Train: 30.1743 | Val: loss 27.8596 | med|ΔE|/E 0.3609 | RMSE(ΔE/E) 1.8769 | Time = 445.4s
+2025-09-17 17:44:41,712 - INFO - [Epoch 9] Train: 24.6836 | Val: loss 17.0379 | med|ΔE|/E 0.2677 | RMSE(ΔE/E) 1.2885 | Time = 445.6s
+2025-09-17 17:52:07,452 - INFO - [Epoch 10] Train: 12.3039 | Val: loss 11.7442 | med|ΔE|/E 0.1287 | RMSE(ΔE/E) 0.5638 | Time = 445.6s
+2025-09-17 17:59:33,152 - INFO - [Epoch 11] Train: 9.7454 | Val: loss 6.3540 | med|ΔE|/E 0.1073 | RMSE(ΔE/E) 0.6614 | Time = 445.5s
+2025-09-17 18:06:58,993 - INFO - [Epoch 12] Train: 10.3697 | Val: loss 4.3485 | med|ΔE|/E 0.1128 | RMSE(ΔE/E) 0.5535 | Time = 445.7s
+2025-09-17 18:14:24,751 - INFO - [Epoch 13] Train: 6.2975 | Val: loss 6.3519 | med|ΔE|/E 0.1858 | RMSE(ΔE/E) 0.2744 | Time = 445.6s
+2025-09-17 18:21:50,497 - INFO - [Epoch 14] Train: 7.0065 | Val: loss 7.8115 | med|ΔE|/E 0.2007 | RMSE(ΔE/E) 0.4112 | Time = 445.6s
+2025-09-17 18:29:16,217 - INFO - [Epoch 15] Train: 8.4913 | Val: loss 8.0097 | med|ΔE|/E 0.1100 | RMSE(ΔE/E) 0.2846 | Time = 445.6s
+2025-09-17 18:36:42,026 - INFO - [Epoch 16] Train: 6.9808 | Val: loss 4.5381 | med|ΔE|/E 0.1124 | RMSE(ΔE/E) 0.2832 | Time = 445.7s
+2025-09-17 18:44:07,845 - INFO - [Epoch 17] Train: 6.8916 | Val: loss 4.2573 | med|ΔE|/E 0.1447 | RMSE(ΔE/E) 0.3267 | Time = 445.7s
+2025-09-17 18:51:33,542 - INFO - [Epoch 18] Train: 9.2634 | Val: loss 4.5227 | med|ΔE|/E 0.1056 | RMSE(ΔE/E) 0.4228 | Time = 445.5s
+2025-09-17 18:58:59,373 - INFO - [Epoch 19] Train: 5.7800 | Val: loss 7.0944 | med|ΔE|/E 0.1952 | RMSE(ΔE/E) 0.5068 | Time = 445.5s
+2025-09-17 19:06:25,166 - INFO - [Epoch 20] Train: 6.3370 | Val: loss 4.8151 | med|ΔE|/E 0.1294 | RMSE(ΔE/E) 0.2657 | Time = 445.7s
+2025-09-17 19:06:25,310 - INFO - [Device] cuda:0 | Total GPU Memory Used: 48791.31 MB
+2025-09-17 19:06:25,311 - INFO - [Post] Plotting Input Data
+2025-09-17 19:07:10,981 - INFO - [Device] cuda:1 | Total GPU Memory Used: 49356.88 MB
+[rank 1] reached postprocessing barrier
+2025-09-17 19:16:09,657 - INFO - [Post] Saving to CSV
+2025-09-17 19:16:09,658 - INFO - [Post] Plotting Losses
+[rank 0] reached postprocessing barrier
+[rank 0] tearing down DDP
+[rank 1] tearing down DDP
+[W917 19:16:09.905255413 ProcessGroupNCCL.cpp:1479] Warning: WARNING: destroy_process_group() was not called before program exit, which can leak resources. For more info, please see https://pytorch.org/docs/stable/distributed.html#shutdown (function operator())
+=== Job ended at Wed 17 Sep 19:16:12 BST 2025 ===

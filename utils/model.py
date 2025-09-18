@@ -958,6 +958,65 @@ class TokenLayer(nn.Module):
             }
 
         return tok_pos, tok_batch, desc
+    
+class EGNNHierEncoder(nn.Module):
+    def __init__(self, in_features, hidden_dim=64, latent_dim=32,
+                 k=16, keep1=0.25, keep2=0.25,
+                 pre_layers=3, mid_layers=2, post_layers=2):
+        super().__init__()
+        
+        self.pre = nn.ModuleList([
+            EGNNLayerWithCoord(
+                in_features if i==0 else hidden_dim,
+                hidden_dim,
+                dropout_prob=0.1,
+                coord_clip=0.2, init_alpha=0.1,
+                update_coords=True
+            ) for i in range(pre_layers)
+        ])
+
+        self.mid = nn.ModuleList([
+            EGNNLayerWithCoord(
+                hidden_dim, hidden_dim,
+                dropout_prob=0.1,
+                update_coords=True
+            ) for _ in range(mid_layers)
+        ])
+
+        # all but the last post layer update coords; the last one does not
+        self.post = nn.ModuleList(
+            [EGNNLayerWithCoord(hidden_dim, hidden_dim, dropout_prob=0.1, update_coords=True)
+             for _ in range(max(0, post_layers - 1))]
+            + [EGNNLayerWithCoord(hidden_dim, hidden_dim, dropout_prob=0.1, update_coords=False)]
+        )
+
+        self.keep1, self.keep2, self.k = keep1, keep2, k
+        self.final_norm = nn.LayerNorm(hidden_dim)
+        self.lin = nn.Sequential(
+            nn.Linear(hidden_dim, hidden_dim),
+            nn.SiLU(), nn.Dropout(0.2),
+            nn.Linear(hidden_dim, latent_dim)
+        )
+
+    def forward(self, x, pos, edge_index, batch):
+        # pre
+        for layer in self.pre:
+            x, pos = layer(x, pos, edge_index)
+
+        # pool → mid
+        x, pos, batch, edge_index, _ = pool_once(x, pos, batch, keep_ratio=self.keep1, k=self.k)
+        for layer in self.mid:
+            x, pos = layer(x, pos, edge_index)
+
+        # pool → post
+        x, pos, batch, edge_index, _ = pool_once(x, pos, batch, keep_ratio=self.keep2, k=self.k)
+        for layer in self.post:
+            x, pos = layer(x, pos, edge_index)
+
+        # readout
+        x = self.final_norm(x)
+        g = global_mean_pool(x, batch)
+        return self.lin(g)
 
 class EGNNEncoderToF(nn.Module):
     def __init__(self, in_features, hidden_dim, latent_dim,
@@ -1141,89 +1200,46 @@ class EGNNEncoderToF(nn.Module):
         desc = F.layer_norm(desc, desc.shape[1:])
         g = torch.cat([g, self.desc_proj(desc)], dim=1)
         return self.lin(g)
-    
-class EGNNHierEncoder(nn.Module):
-    def __init__(self, in_features, hidden_dim=64, latent_dim=32,
-                 k=16, keep1=0.25, keep2=0.25,
-                 pre_layers=3, mid_layers=2, post_layers=2):
-        super().__init__()
-        
-        self.pre = nn.ModuleList([
-            EGNNLayerWithCoord(
-                in_features if i==0 else hidden_dim,
-                hidden_dim,
-                dropout_prob=0.1,
-                coord_clip=0.2, init_alpha=0.1,
-                update_coords=True
-            ) for i in range(pre_layers)
-        ])
-
-        self.mid = nn.ModuleList([
-            EGNNLayerWithCoord(
-                hidden_dim, hidden_dim,
-                dropout_prob=0.1,
-                update_coords=True
-            ) for _ in range(mid_layers)
-        ])
-
-        # all but the last post layer update coords; the last one does not
-        self.post = nn.ModuleList(
-            [EGNNLayerWithCoord(hidden_dim, hidden_dim, dropout_prob=0.1, update_coords=True)
-             for _ in range(max(0, post_layers - 1))]
-            + [EGNNLayerWithCoord(hidden_dim, hidden_dim, dropout_prob=0.1, update_coords=False)]
-        )
-
-        self.keep1, self.keep2, self.k = keep1, keep2, k
-        self.final_norm = nn.LayerNorm(hidden_dim)
-        self.lin = nn.Sequential(
-            nn.Linear(hidden_dim, hidden_dim),
-            nn.SiLU(), nn.Dropout(0.2),
-            nn.Linear(hidden_dim, latent_dim)
-        )
-
-    def forward(self, x, pos, edge_index, batch):
-        # pre
-        for layer in self.pre:
-            x, pos = layer(x, pos, edge_index)
-
-        # pool → mid
-        x, pos, batch, edge_index, _ = pool_once(x, pos, batch, keep_ratio=self.keep1, k=self.k)
-        for layer in self.mid:
-            x, pos = layer(x, pos, edge_index)
-
-        # pool → post
-        x, pos, batch, edge_index, _ = pool_once(x, pos, batch, keep_ratio=self.keep2, k=self.k)
-        for layer in self.post:
-            x, pos = layer(x, pos, edge_index)
-
-        # readout
-        x = self.final_norm(x)
-        g = global_mean_pool(x, batch)
-        return self.lin(g)
-
 
 class EGNNEnergyRegressor(nn.Module):
-    def __init__(self, in_features, hidden_dim=64, latent_dim=32, pooled_levels=None):
+    def __init__(self, in_features, hidden_dim=64, latent_dim=32, model=None, pooled_levels=None, sh_basis=None):
         super().__init__()
-        # self.encoder = EGNNAttentionEncoder(in_features, hidden_dim, latent_dim)
-        self.encoder = EGNNEncoderToF(
-            in_features=in_features, hidden_dim=hidden_dim, latent_dim=latent_dim,
-            pre_layers=3, mid_layers=4, post_layers=3, 
-            pooled_levels=pooled_levels
-        )
+        self.model = model
+        self.register_buffer("S", torch.from_numpy(sh_basis).float())
+        if self.model == 'Attention':
+            self.encoder = EGNNAttentionEncoder(in_features, hidden_dim, latent_dim)
+        elif self.model == 'ToF':
+            self.encoder = EGNNEncoderToF(
+                in_features=in_features, hidden_dim=hidden_dim, latent_dim=latent_dim,
+                pre_layers=3, mid_layers=4, post_layers=3, 
+                pooled_levels=pooled_levels
+            )
+        else:
+            raise ValueError("Enter a valid model")
         self.head = nn.Sequential(
-            nn.Linear(latent_dim, hidden_dim),
+            nn.Linear(latent_dim + 16, hidden_dim),
             nn.ReLU(),
             nn.Linear(hidden_dim, 1)
         )
 
     # def forward(self, x, pos, edge_index, batch):
-    def forward(self, x, pos, vtx, raw_npe, raw_fht, edge_index, batch):
-        # z = self.encoder(x, pos, edge_index, batch)
-        z = self.encoder(x, pos, vtx, raw_npe, raw_fht, edge_index, batch)
-        # out = self.head(z)
-        # mu, log_var = out[...,0], out[...,1]
-        return self.head(z)
+    def forward(self, x, pos, edge_index, batch, vtx=None, raw_npe=None, raw_fht=None):
+        if self.model == 'Attention':
+            z = self.encoder(x, pos, edge_index, batch)
+        elif self.model == 'ToF':
+            z = self.encoder(x, pos, vtx, raw_npe, raw_fht, edge_index, batch)
+        else:
+            raise ValueError("Enter a valid model")
+
+        B = int(batch.max().item() + 1)
+        N = self.S.size(0)                         
+        w = raw_npe.view(B, N).squeeze(-1)
+        w = w / (w.sum(dim=1, keepdim=True) + 1e-6)
+
+        a = torch.einsum('nd,bn->bd', self.S, w)  
+
+        out = self.head(torch.cat([z, a], dim=1)) 
+        return out
 
 class EGNNFlavourClassifier(nn.Module):
     def __init__(self, in_features, hidden_dim=64, latent_dim=32, num_classes=3):

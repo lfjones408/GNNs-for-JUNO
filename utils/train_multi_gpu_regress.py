@@ -170,7 +170,7 @@ def train_epoch(model, loader, loss_fn, optimizer, device, device_type, scaler,
         batch = batch.to(device)
 
         with autocast(device_type=device_type):
-            pred = model(batch.x, batch.pos, batch.vertex, batch.raw_npe, batch.raw_fht, batch.edge_index, batch.batch)
+            pred = model(batch.x, batch.pos, batch.edge_index, batch.batch, batch.vertex, batch.raw_npe, batch.raw_fht)
             # pred = model(batch.x, batch.pos, batch.edge_index, batch.batch)
             pred = pred.squeeze(-1)
             loss = loss_fn(pred, batch)
@@ -193,7 +193,7 @@ def validate(model, loader, loss_fn, device, device_type):
         for batch in loader:
             batch = batch.to(device)
             with autocast(device_type=device_type):
-                pred = model(batch.x, batch.pos, batch.vertex, batch.raw_npe, batch.raw_fht, batch.edge_index, batch.batch) # ToF
+                pred = model(batch.x, batch.pos, batch.edge_index, batch.batch, batch.vertex, batch.raw_npe, batch.raw_fht) # ToF
                 # pred = model(batch.x, batch.pos, batch.edge_index, batch.batch) # EGNN
                 pred = pred.squeeze(-1)
                 loss = loss_fn(pred, batch)
@@ -371,10 +371,12 @@ def main():
 
     # raw_model = EGNNFlavourClassifier(
     raw_model = EGNNEnergyRegressor(
-        in_features=20,
+        in_features=4,
         hidden_dim=hidden_dim,
         latent_dim=latent_dim,
-        pooled_levels=pool_levels
+        model='Attention',
+        pooled_levels=pool_levels,
+        sh_basis=sh
     ).to(device)
 
     # param_count = sum(p.numel() for p in raw_model.parameters())
